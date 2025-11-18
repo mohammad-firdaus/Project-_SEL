@@ -1,0 +1,1 @@
+- [x] Add icon beside "Put On Sale" text in the button
