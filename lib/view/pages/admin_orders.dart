@@ -5,6 +5,6 @@ class AdminOrders extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Center(child: Text('This is Orders Page.'));
+    return Center(child: Text('This is Orders Page. This page is under construction.'));
   }
 }
