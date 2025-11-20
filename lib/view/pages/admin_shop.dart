@@ -277,42 +277,40 @@ class _AdminShopState extends State<AdminShop> {
   }
 
   Widget _summaryCard(String title, String count, IconData icon, Color color) {
-    return Expanded(
-      child: Container(
-        margin: EdgeInsets.symmetric(horizontal: 4),
-        padding: EdgeInsets.all(12),
-        decoration: BoxDecoration(
-          // ignore: deprecated_member_use
-          color: color.withOpacity(0.15),
-          borderRadius: BorderRadius.circular(12),
-        ),
-        child: Row(
-          children: [
-            CircleAvatar(
-              backgroundColor: color,
-              radius: 16,
-              child: Icon(icon, color: Colors.white, size: 20),
-            ),
-            SizedBox(width: 12),
-            Flexible(
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Text(title, style: TextStyle(color: Colors.grey[700])),
-                  SizedBox(height: 4),
-                  Text(
-                    count,
-                    style: TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 20,
-                      color: color,
-                    ),
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 4),
+      padding: EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        // ignore: deprecated_member_use
+        color: color.withOpacity(0.15),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          CircleAvatar(
+            backgroundColor: color,
+            radius: 16,
+            child: Icon(icon, color: Colors.white, size: 20),
+          ),
+          SizedBox(width: 12),
+          Flexible(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(title, style: TextStyle(color: Colors.grey[700])),
+                SizedBox(height: 4),
+                Text(
+                  count,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20,
+                    color: color,
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }
