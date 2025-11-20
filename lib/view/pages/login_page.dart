@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_sel/view/admin_widget_tree.dart';
 import 'package:project_sel/view/customer_widget_tree.dart';
+import 'package:project_sel/view/guest_widget_tree.dart';
 import 'package:project_sel/view/pages/forgot_password_page.dart';
 import 'package:project_sel/view/pages/sign_up_page.dart';
 
@@ -314,6 +315,36 @@ class _LoginPageState extends State<LoginPage> {
                               'Sign In',
                               style: TextStyle(
                                 color: Colors.white,
+                                fontWeight: FontWeight.bold,
+                                fontSize: 16,
+                              ),
+                            ),
+                          ),
+                        ),
+                        SizedBox(height: 15),
+                        SizedBox(
+                          width: double.infinity,
+                          height: 48,
+                          child: OutlinedButton(
+                            onPressed: () {
+                              Navigator.pushAndRemoveUntil(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => GuestWidgetTree(),
+                                ),
+                                (route) => false,
+                              );
+                            },
+                            style: OutlinedButton.styleFrom(
+                              side: BorderSide(color: greenColor),
+                              shape: RoundedRectangleBorder(
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                            ),
+                            child: Text(
+                              'Continue as Guest',
+                              style: TextStyle(
+                                color: greenColor,
                                 fontWeight: FontWeight.bold,
                                 fontSize: 16,
                               ),
