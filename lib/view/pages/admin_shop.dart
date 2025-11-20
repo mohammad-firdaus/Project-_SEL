@@ -628,15 +628,15 @@ class _AdminShopState extends State<AdminShop> {
                       const SizedBox(height: 12),
 
                       TextButton(
-                        onPressed: () {}, // Your logic here
-                        child: const Text(
-                          'Move items from Ready Stock to On Sale inventory',
-                        ),
+                        onPressed: () {},
                         style: TextButton.styleFrom(
                           padding: EdgeInsets.zero,
                           minimumSize: const Size(50, 20),
                           alignment: Alignment.centerLeft,
                           textStyle: const TextStyle(color: Colors.blue),
+                        ), // Your logic here
+                        child: const Text(
+                          'Move items from Ready Stock to On Sale inventory',
                         ),
                       ),
                       const SizedBox(height: 12),
