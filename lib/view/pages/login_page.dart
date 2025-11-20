@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_sel/view/admin_widget_tree.dart';
 import 'package:project_sel/view/customer_widget_tree.dart';
+import 'package:project_sel/view/guest_widget_tree.dart';
 import 'package:project_sel/view/pages/forgot_password_page.dart';
 import 'package:project_sel/view/pages/sign_up_page.dart';
 
@@ -329,7 +330,7 @@ class _LoginPageState extends State<LoginPage> {
                               Navigator.pushAndRemoveUntil(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => CustomerWidgetTree(),
+                                  builder: (context) => GuestWidgetTree(),
                                 ),
                                 (route) => false,
                               );

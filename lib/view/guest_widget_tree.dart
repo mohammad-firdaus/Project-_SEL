@@ -13,8 +13,8 @@ List<Widget> pages = [
   CustomerProfile(),
 ];
 
-class CustomerWidgetTree extends StatelessWidget {
-  const CustomerWidgetTree({super.key});
+class GuestWidgetTree extends StatelessWidget {
+  const GuestWidgetTree({super.key});
 
   @override
   Widget build(BuildContext context) {
