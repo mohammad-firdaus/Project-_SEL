@@ -23,6 +23,7 @@ class CustomerHome extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
+                // ignore: deprecated_member_use
                 color: Colors.green.shade700.withOpacity(0.9),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -47,6 +48,7 @@ class CustomerHome extends StatelessWidget {
           right: 12,
           child: Container(
             decoration: BoxDecoration(
+              // ignore: deprecated_member_use
               color: Colors.black.withOpacity(0.5),
               borderRadius: BorderRadius.circular(10),
             ),
