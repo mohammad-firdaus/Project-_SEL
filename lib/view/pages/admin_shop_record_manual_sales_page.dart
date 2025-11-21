@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, unnecessary_underscores
+
 import 'package:flutter/material.dart';
 
 class ManualSalesEntryPage extends StatefulWidget {

@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:file_picker/file_picker.dart';
+import 'dart:io';
 
 class ManageFeaturedAdsPage extends StatefulWidget {
   const ManageFeaturedAdsPage({super.key});
@@ -19,6 +21,8 @@ class _ManageFeaturedAdsPageState extends State<ManageFeaturedAdsPage> {
   final TextEditingController badgeController = TextEditingController();
 
   String adType = 'Secondary Card';
+  File? selectedImage;
+  String? selectedImagePath;
 
   @override
   void dispose() {
@@ -35,6 +39,21 @@ class _ManageFeaturedAdsPageState extends State<ManageFeaturedAdsPage> {
     });
   }
 
+  Future<void> pickImage() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.image,
+      allowMultiple: false,
+    );
+
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        selectedImage = File(result.files.single.path!);
+        selectedImagePath = result.files.single.path!;
+        imageUrlController.text = selectedImagePath!;
+      });
+    }
+  }
+
   void saveAd() {
     // You can add validation and saving logic here
     // ignore: avoid_print
@@ -44,7 +63,7 @@ class _ManageFeaturedAdsPageState extends State<ManageFeaturedAdsPage> {
     // ignore: avoid_print
     print('Subtitle: ${subtitleController.text}');
     // ignore: avoid_print
-    print('Image URL: ${imageUrlController.text}');
+    print('Image: ${selectedImagePath ?? imageUrlController.text}');
     // ignore: avoid_print
     print('Type: $adType');
     // ignore: avoid_print
@@ -58,6 +77,8 @@ class _ManageFeaturedAdsPageState extends State<ManageFeaturedAdsPage> {
 
     setState(() {
       showNewAdForm = false;
+      selectedImage = null;
+      selectedImagePath = null;
     });
 
     ScaffoldMessenger.of(
@@ -258,21 +279,64 @@ class _ManageFeaturedAdsPageState extends State<ManageFeaturedAdsPage> {
           ),
           SizedBox(height: 12),
 
-          // Image URL
-          Text('Image URL *', style: TextStyle(fontWeight: FontWeight.w600)),
+          // Image Section
+          Text('Image *', style: TextStyle(fontWeight: FontWeight.w600)),
           SizedBox(height: 6),
-          TextField(
-            controller: imageUrlController,
-            decoration: InputDecoration(
-              hintText: 'Enter image URL',
-              border: OutlineInputBorder(
-                borderRadius: BorderRadius.circular(8),
+          Column(
+            children: [
+              Row(
+                children: [
+                  Expanded(
+                    child: TextField(
+                      controller: imageUrlController,
+                      decoration: InputDecoration(
+                        hintText: 'Enter image URL',
+                        border: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(8),
+                        ),
+                        contentPadding: EdgeInsets.symmetric(
+                          horizontal: 12,
+                          vertical: 14,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(width: 8),
+                  ElevatedButton.icon(
+                    onPressed: pickImage,
+                    icon: Icon(Icons.upload_file, color: greenColor),
+                    label: Text('Upload', style: TextStyle(color: greenColor)),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      elevation: 0,
+                      side: BorderSide(color: greenColor),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 12,
+                        vertical: 14,
+                      ),
+                    ),
+                  ),
+                ],
               ),
-              contentPadding: EdgeInsets.symmetric(
-                horizontal: 12,
-                vertical: 14,
-              ),
-            ),
+              if (selectedImage != null)
+                Padding(
+                  padding: EdgeInsets.only(top: 8),
+                  child: Container(
+                    height: 100,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(8),
+                      image: DecorationImage(
+                        image: FileImage(selectedImage!),
+                        fit: BoxFit.cover,
+                      ),
+                    ),
+                  ),
+                ),
+            ],
           ),
           SizedBox(height: 12),
 
@@ -353,6 +417,8 @@ class _ManageFeaturedAdsPageState extends State<ManageFeaturedAdsPage> {
                       imageUrlController.clear();
                       badgeController.clear();
                       adType = 'Secondary Card';
+                      selectedImage = null;
+                      selectedImagePath = null;
                     });
                   },
                   child: Padding(

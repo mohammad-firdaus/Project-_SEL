@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class CustomerHome extends StatelessWidget {
-  const CustomerHome({Key? key}) : super(key: key);
+  const CustomerHome({super.key});
 
   Widget _buildFeaturedCard(String imageUrl, String title, String subtitle,
       {bool isNewCampaign = false, bool isSponsored = false}) {
