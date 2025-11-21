@@ -12,12 +12,11 @@ class AdminShop extends StatefulWidget {
 class _AdminShopState extends State<AdminShop> {
   String dropdownValue = 'All Categories';
   final List<String> categories = [
-    'All Collections',
-    'Basic',
-    'Standard',
-    'Premium',
-    'Corporate Orders',
-    'Urban Composts',
+    'All Categories',
+    'Plastic',
+    'Paper',
+    'Glass',
+    'Metal',
   ];
   final TextEditingController _searchController = TextEditingController();
 
