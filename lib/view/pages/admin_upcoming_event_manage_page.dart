@@ -39,6 +39,8 @@ class _UpcomingEventManagePageState extends State<UpcomingEventManagePage> {
   ];
 
   bool showNewEventForm = false;
+  bool isEditing = false;
+  int? currentEditingIndex;
 
   final TextEditingController titleController = TextEditingController();
   final TextEditingController dateController = TextEditingController();
@@ -90,30 +92,89 @@ class _UpcomingEventManagePageState extends State<UpcomingEventManagePage> {
     }
 
     setState(() {
-      events.insert(
-        0,
-        EventItem(
+      if (isEditing && currentEditingIndex != null) {
+        // Update existing event
+        events[currentEditingIndex!] = EventItem(
           title: title,
           date: date!,
           location: location,
-          participants: 0,
+          participants: events[currentEditingIndex!].participants,
           description: description,
-          isActive: true,
-        ),
-      );
+          isActive: events[currentEditingIndex!].isActive,
+        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Event successfully updated')));
+      } else {
+        // Add new event
+        events.insert(
+          0,
+          EventItem(
+            title: title,
+            date: date!,
+            location: location,
+            participants: 0,
+            description: description,
+            isActive: true,
+          ),
+        );
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(SnackBar(content: Text('Event successfully added')));
+      }
       showNewEventForm = false;
+      isEditing = false;
+      currentEditingIndex = null;
       _clearNewEventForm();
     });
+  }
 
-    ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Event successfully added')));
+  void _startEditing(int index) {
+    final event = events[index];
+    titleController.text = event.title;
+    dateController.text = formatDate(event.date);
+    locationController.text = event.location;
+    descriptionController.text = event.description;
+    setState(() {
+      isEditing = true;
+      currentEditingIndex = index;
+      showNewEventForm = true;
+    });
+  }
+
+  void _deleteEvent(int index) {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Delete Event'),
+        content: Text('Are you sure you want to delete this event?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(context).pop(),
+            child: Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () {
+              setState(() {
+                events.removeAt(index);
+              });
+              Navigator.of(context).pop();
+              ScaffoldMessenger.of(
+                context,
+              ).showSnackBar(SnackBar(content: Text('Event deleted')));
+            },
+            child: Text('Delete', style: TextStyle(color: Colors.red)),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        backgroundColor: greenColor, 
+        backgroundColor: greenColor,
         leading: IconButton(
           icon: Icon(Icons.arrow_back, color: Colors.white),
           onPressed: () => Navigator.of(context).pop(),
@@ -123,7 +184,10 @@ class _UpcomingEventManagePageState extends State<UpcomingEventManagePage> {
           children: [
             Text(
               'Manage Events',
-              style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+              style: TextStyle(
+                fontWeight: FontWeight.bold,
+                color: Colors.white,
+              ),
             ),
             SizedBox(height: 3),
             Text(
@@ -151,13 +215,18 @@ class _UpcomingEventManagePageState extends State<UpcomingEventManagePage> {
                       icon: Icon(Icons.add, color: greenColor),
                       label: Text(
                         'Add New Event',
-                        style: TextStyle(color: greenColor, fontWeight: FontWeight.w600),
+                        style: TextStyle(
+                          color: greenColor,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                       style: ElevatedButton.styleFrom(
                         backgroundColor: Colors.white,
                         elevation: 0,
                         side: BorderSide(color: greenColor),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(15)),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(15),
+                        ),
                         padding: EdgeInsets.symmetric(vertical: 14),
                       ),
                       onPressed: toggleNewEventForm,
@@ -167,7 +236,10 @@ class _UpcomingEventManagePageState extends State<UpcomingEventManagePage> {
                   if (showNewEventForm) _buildNewEventForm(),
                   Column(
                     children: events
-                        .map((event) => _buildEventCard(context, event, greenColor))
+                        .map(
+                          (event) =>
+                              _buildEventCard(context, event, greenColor),
+                        )
                         .toList(),
                   ),
                 ],
@@ -186,12 +258,21 @@ class _UpcomingEventManagePageState extends State<UpcomingEventManagePage> {
       decoration: BoxDecoration(
         color: Colors.white,
         borderRadius: BorderRadius.circular(16),
-        boxShadow: [BoxShadow(color: Colors.black12, blurRadius: 20, offset: Offset(0, 4))],
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black12,
+            blurRadius: 20,
+            offset: Offset(0, 4),
+          ),
+        ],
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Text('New Event', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+          Text(
+            isEditing ? 'Edit Event' : 'New Event',
+            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+          ),
           SizedBox(height: 12),
           Text('Event Title *', style: TextStyle(fontWeight: FontWeight.w600)),
           SizedBox(height: 6),
@@ -199,8 +280,13 @@ class _UpcomingEventManagePageState extends State<UpcomingEventManagePage> {
             controller: titleController,
             decoration: InputDecoration(
               hintText: 'Enter event title',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 14,
+              ),
             ),
           ),
           SizedBox(height: 10),
@@ -210,8 +296,13 @@ class _UpcomingEventManagePageState extends State<UpcomingEventManagePage> {
             controller: dateController,
             decoration: InputDecoration(
               hintText: 'e.g., Nov 15, 2025',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 14,
+              ),
             ),
           ),
           SizedBox(height: 10),
@@ -221,8 +312,13 @@ class _UpcomingEventManagePageState extends State<UpcomingEventManagePage> {
             controller: locationController,
             decoration: InputDecoration(
               hintText: 'Enter location',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 14,
+              ),
             ),
           ),
           SizedBox(height: 10),
@@ -233,8 +329,13 @@ class _UpcomingEventManagePageState extends State<UpcomingEventManagePage> {
             maxLines: 3,
             decoration: InputDecoration(
               hintText: 'Enter event description',
-              border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
-              contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 14),
+              border: OutlineInputBorder(
+                borderRadius: BorderRadius.circular(8),
+              ),
+              contentPadding: EdgeInsets.symmetric(
+                horizontal: 12,
+                vertical: 14,
+              ),
             ),
           ),
           SizedBox(height: 20),
@@ -243,25 +344,43 @@ class _UpcomingEventManagePageState extends State<UpcomingEventManagePage> {
               Expanded(
                 child: ElevatedButton.icon(
                   icon: Icon(Icons.save, color: Colors.white),
-                  label: Text('Save Event', style: TextStyle(color: Colors.white),),
+                  label: Text(
+                    isEditing ? 'Update Event' : 'Save Event',
+                    style: TextStyle(color: Colors.white),
+                  ),
                   style: ElevatedButton.styleFrom(
                     backgroundColor: greenColor,
                     padding: EdgeInsets.symmetric(vertical: 14),
-                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(12),
+                    ),
                   ),
                   onPressed: saveNewEvent,
                 ),
               ),
               SizedBox(width: 12),
               Material(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
+                ),
                 color: Colors.grey.shade300,
                 child: InkWell(
                   borderRadius: BorderRadius.circular(12),
-                  onTap: toggleNewEventForm,
+                  onTap: () {
+                    setState(() {
+                      showNewEventForm = false;
+                      isEditing = false;
+                      currentEditingIndex = null;
+                      _clearNewEventForm();
+                    });
+                  },
                   child: Padding(
                     padding: EdgeInsets.symmetric(horizontal: 16, vertical: 14),
-                    child: Icon(Icons.close, size: 28, color: Colors.grey.shade700),
+                    child: Icon(
+                      Icons.close,
+                      size: 28,
+                      color: Colors.grey.shade700,
+                    ),
                   ),
                 ),
               ),
@@ -272,7 +391,11 @@ class _UpcomingEventManagePageState extends State<UpcomingEventManagePage> {
     );
   }
 
-  Widget _buildEventCard(BuildContext context, EventItem event, Color greenColor) {
+  Widget _buildEventCard(
+    BuildContext context,
+    EventItem event,
+    Color greenColor,
+  ) {
     return Card(
       margin: EdgeInsets.symmetric(vertical: 6),
       shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
@@ -281,17 +404,26 @@ class _UpcomingEventManagePageState extends State<UpcomingEventManagePage> {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(event.title, style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16)),
+            Text(
+              event.title,
+              style: TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+            ),
             SizedBox(height: 8),
             Row(
               children: [
                 Icon(Icons.calendar_today, size: 16, color: Colors.grey),
                 SizedBox(width: 4),
-                Text(formatDate(event.date), style: TextStyle(color: Colors.grey[700], fontSize: 14)),
+                Text(
+                  formatDate(event.date),
+                  style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                ),
                 Spacer(),
                 Icon(Icons.location_on, size: 16, color: Colors.grey),
                 SizedBox(width: 4),
-                Text(event.location, style: TextStyle(color: Colors.grey[700], fontSize: 14)),
+                Text(
+                  event.location,
+                  style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                ),
               ],
             ),
             SizedBox(height: 12),
@@ -301,27 +433,34 @@ class _UpcomingEventManagePageState extends State<UpcomingEventManagePage> {
               children: [
                 Icon(Icons.people, size: 20, color: greenColor),
                 SizedBox(width: 8),
-                Text('${event.participants} registered', style: TextStyle(color: greenColor, fontWeight: FontWeight.bold, fontSize: 14)),
+                Text(
+                  '${event.participants} registered',
+                  style: TextStyle(
+                    color: greenColor,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 14,
+                  ),
+                ),
                 Spacer(),
                 Material(
                   color: greenColor,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   child: IconButton(
                     icon: Icon(Icons.edit, color: Colors.white),
-                    onPressed: () {
-                      // TODO: Implement event edit
-                    },
+                    onPressed: () => _startEditing(events.indexOf(event)),
                   ),
                 ),
                 SizedBox(width: 8),
                 Material(
                   color: Colors.red,
-                  shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(8),
+                  ),
                   child: IconButton(
                     icon: Icon(Icons.delete_outline, color: Colors.white),
-                    onPressed: () {
-                      // TODO: Implement event delete
-                    },
+                    onPressed: () => _deleteEvent(events.indexOf(event)),
                   ),
                 ),
               ],

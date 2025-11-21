@@ -6,17 +6,19 @@ class AdminShop extends StatefulWidget {
   const AdminShop({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _AdminShopState createState() => _AdminShopState();
 }
 
 class _AdminShopState extends State<AdminShop> {
-  String dropdownValue = 'All Categories';
+  String dropdownValue = 'All Collections';
   final List<String> categories = [
-    'All Categories',
-    'Plastic',
-    'Paper',
-    'Glass',
-    'Metal',
+    'All Collections',
+    'Basic',
+    'Standard',
+    'Premium',
+    'Corporate',
+    'Urban Compost',
   ];
   final TextEditingController _searchController = TextEditingController();
 
@@ -28,7 +30,8 @@ class _AdminShopState extends State<AdminShop> {
       onSale: 50,
       sold: 95,
       imagePath: 'assets/images/plastic_bottle.png',
-      category: 'Plastic',
+      category: 'Urban Compost',
+      lastUpdated: DateTime.now().subtract(Duration(hours: 2)),
     ),
     Product(
       name: 'Glass Container Set',
@@ -37,7 +40,8 @@ class _AdminShopState extends State<AdminShop> {
       onSale: 0,
       sold: 6,
       imagePath: 'assets/images/glass_container.jpg',
-      category: 'Glass',
+      category: 'Corporate',
+      lastUpdated: DateTime.now().subtract(Duration(days: 1)),
     ),
     Product(
       name: 'Paper Shopping Bag',
@@ -46,7 +50,8 @@ class _AdminShopState extends State<AdminShop> {
       onSale: 0,
       sold: 86,
       imagePath: 'assets/images/paper_bag.jpg',
-      category: 'Paper',
+      category: 'Basic',
+      lastUpdated: DateTime.now().subtract(Duration(minutes: 30)),
     ),
     Product(
       name: 'Metal Water Bottle',
@@ -55,7 +60,8 @@ class _AdminShopState extends State<AdminShop> {
       onSale: 0,
       sold: 58,
       imagePath: 'assets/images/metal_bottle.jpg',
-      category: 'Metal',
+      category: 'Premium',
+      lastUpdated: DateTime.now().subtract(Duration(hours: 5)),
     ),
     Product(
       name: 'Recycled Tote Bag',
@@ -64,7 +70,8 @@ class _AdminShopState extends State<AdminShop> {
       onSale: 0,
       sold: 0,
       imagePath: 'assets/images/tote_bag.jpg',
-      category: 'Plastic',
+      category: 'Standard',
+      lastUpdated: DateTime.now().subtract(Duration(days: 3)),
     ),
     Product(
       name: 'Eco Notebook',
@@ -73,14 +80,15 @@ class _AdminShopState extends State<AdminShop> {
       onSale: 0,
       sold: 2,
       imagePath: 'assets/images/eco_notebook.jpg',
-      category: 'Paper',
+      category: 'Basic',
+      lastUpdated: DateTime.now().subtract(Duration(hours: 1)),
     ),
   ];
 
   @override
   Widget build(BuildContext context) {
     final Color primaryGreen = const Color(0xFF42B642);
-    List<Product> filteredProducts = dropdownValue == 'All Categories'
+    List<Product> filteredProducts = dropdownValue == 'All Collections'
         ? products
         : products.where((p) => p.category == dropdownValue).toList();
 
@@ -90,187 +98,206 @@ class _AdminShopState extends State<AdminShop> {
           height: MediaQuery.of(context).size.height * 0.1,
           color: primaryGreen,
         ),
-        Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-          child: SingleChildScrollView(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                // Heading section
-                Row(
-                  children: const [
-                    Icon(Icons.shopify, color: Colors.white, size: 35),
-                    SizedBox(width: 5),
-                    Text(
-                      'Shop Overview',
-                      style: TextStyle(
-                        fontSize: 26,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
-                      ),
-                    ),
-                  ],
-                ),
-                const SizedBox(height: 2),
-                const Text(
-                  'Manage products and inventory',
-                  style: TextStyle(color: Colors.white, fontSize: 14),
-                ),
-                const SizedBox(height: 15),
-
-                // Summary Cards in 2x2 Grid in a Box Container
-                Container(
-                  padding: EdgeInsets.all(16),
-                  decoration: BoxDecoration(
-                    color: Colors.white,
-                    borderRadius: BorderRadius.circular(12),
-                    boxShadow: [
-                      BoxShadow(
-                        color: Colors.black12,
-                        blurRadius: 4,
-                        offset: Offset(0, 2),
+        Column(
+          children: [
+            // Fixed header section
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Heading section
+                  Row(
+                    children: const [
+                      Icon(Icons.shopify, color: Colors.white, size: 35),
+                      SizedBox(width: 5),
+                      Text(
+                        'Shop Overview',
+                        style: TextStyle(
+                          fontSize: 26,
+                          fontWeight: FontWeight.bold,
+                          color: Colors.white,
+                        ),
                       ),
                     ],
                   ),
-                  child: GridView.count(
-                    crossAxisCount: 2,
-                    shrinkWrap: true,
-                    physics: NeverScrollableScrollPhysics(),
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 2,
+                  const SizedBox(height: 2),
+                  const Text(
+                    'Manage products and inventory',
+                    style: TextStyle(color: Colors.white, fontSize: 14),
+                  ),
+                  const SizedBox(height: 15),
+                ],
+              ),
+            ),
+            // Scrollable content
+            Expanded(
+              child: SingleChildScrollView(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      _summaryCard(
-                        'Ready Stock',
-                        '989',
-                        Icons.inventory_2_rounded,
-                        Colors.teal,
-                      ),
-                      _summaryCard(
-                        'On Sale',
-                        '375',
-                        Icons.sell_outlined,
-                        Colors.orange,
-                      ),
-                      _summaryCard(
-                        'Total Sold',
-                        '1461',
-                        Icons.shopping_cart_outlined,
-                        Colors.blue,
-                      ),
-                      _summaryCard(
-                        'Products',
-                        '6',
-                        Icons.category_outlined,
-                        Colors.purple,
-                      ),
-                    ],
-                  ),
-                ),
-                SizedBox(height: 16),
-
-                // Search Bar
-                TextField(
-                  controller: _searchController,
-                  decoration: InputDecoration(
-                    hintText: 'Search products...',
-                    prefixIcon: Icon(Icons.search),
-                    border: OutlineInputBorder(
-                      borderRadius: BorderRadius.circular(8),
-                    ),
-                    contentPadding: EdgeInsets.symmetric(
-                      horizontal: 16,
-                      vertical: 0,
-                    ),
-                  ),
-                  onChanged: (value) {
-                    setState(
-                      () {},
-                    ); // To refresh filtered products if want live search
-                  },
-                ),
-                SizedBox(height: 12),
-
-                // Category Dropdown
-                Container(
-                  padding: EdgeInsets.symmetric(horizontal: 12),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    border: Border.all(color: Colors.grey.shade400),
-                  ),
-                  child: DropdownButtonHideUnderline(
-                    child: DropdownButton<String>(
-                      value: dropdownValue,
-                      isExpanded: true,
-                      icon: Icon(Icons.arrow_drop_down),
-                      items: categories
-                          .map(
-                            (cat) => DropdownMenuItem<String>(
-                              value: cat,
-                              child: Text(cat),
+                      // Summary Cards in 2x2 Grid in a Box Container
+                      Container(
+                        padding: EdgeInsets.all(16),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black12,
+                              blurRadius: 4,
+                              offset: Offset(0, 2),
                             ),
-                          )
-                          .toList(),
-                      onChanged: (String? newValue) {
-                        setState(() {
-                          dropdownValue = newValue!;
-                        });
-                      },
-                    ),
-                  ),
-                ),
-                SizedBox(height: 12),
+                          ],
+                        ),
+                        child: GridView.count(
+                          crossAxisCount: 2,
+                          shrinkWrap: true,
+                          physics: NeverScrollableScrollPhysics(),
+                          mainAxisSpacing: 12,
+                          crossAxisSpacing: 12,
+                          childAspectRatio: 2,
+                          children: [
+                            _summaryCard(
+                              'Ready Stock',
+                              '989',
+                              Icons.inventory_2_rounded,
+                              Colors.teal,
+                            ),
+                            _summaryCard(
+                              'On Sale',
+                              '375',
+                              Icons.sell_outlined,
+                              Colors.orange,
+                            ),
+                            _summaryCard(
+                              'Total Sold',
+                              '1461',
+                              Icons.shopping_cart_outlined,
+                              Colors.blue,
+                            ),
+                            _summaryCard(
+                              'Products',
+                              '6',
+                              Icons.category_outlined,
+                              Colors.purple,
+                            ),
+                          ],
+                        ),
+                      ),
+                      SizedBox(height: 16),
 
-                // Showing product count and button
-                Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    Text(
-                      'Showing ${filteredProducts.length} products',
-                      style: TextStyle(color: Colors.grey[700]),
-                    ),
-                    ElevatedButton.icon(
-                      onPressed: () {
-                        Navigator.push(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return ManualSalesEntryPage();
+                      // Search Bar
+                      TextField(
+                        controller: _searchController,
+                        decoration: InputDecoration(
+                          hintText: 'Search products...',
+                          prefixIcon: Icon(Icons.search),
+                          border: OutlineInputBorder(
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          contentPadding: EdgeInsets.symmetric(
+                            horizontal: 16,
+                            vertical: 0,
+                          ),
+                        ),
+                        onChanged: (value) {
+                          setState(
+                            () {},
+                          ); // To refresh filtered products if want live search
+                        },
+                      ),
+                      SizedBox(height: 12),
+
+                      // Category Dropdown
+                      Container(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          border: Border.all(color: Colors.grey.shade400),
+                        ),
+                        child: DropdownButtonHideUnderline(
+                          child: DropdownButton<String>(
+                            value: dropdownValue,
+                            isExpanded: true,
+                            icon: Icon(Icons.arrow_drop_down),
+                            items: categories
+                                .map(
+                                  (cat) => DropdownMenuItem<String>(
+                                    value: cat,
+                                    child: Text(cat),
+                                  ),
+                                )
+                                .toList(),
+                            onChanged: (String? newValue) {
+                              setState(() {
+                                dropdownValue = newValue!;
+                              });
                             },
                           ),
-                        );
-                      },
-                      icon: Icon(Icons.note_add_outlined, color: Colors.white),
-                      label: Text(
-                        'Record Manual Sales',
-                        style: TextStyle(color: Colors.white),
+                        ),
                       ),
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: Color(0xFF4CAF50),
-                      ),
-                    ),
-                  ],
-                ),
-                SizedBox(height: 12),
+                      SizedBox(height: 12),
 
-                GridView.builder(
-                  shrinkWrap: true,
-                  physics: const NeverScrollableScrollPhysics(),
-                  itemCount: filteredProducts.length,
-                  gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                    mainAxisSpacing: 12,
-                    crossAxisSpacing: 12,
-                    childAspectRatio: 0.5,
+                      // Showing product count and button
+                      Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            'Showing ${filteredProducts.length} products',
+                            style: TextStyle(color: Colors.grey[700]),
+                          ),
+                          ElevatedButton.icon(
+                            onPressed: () {
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) {
+                                    return ManualSalesEntryPage();
+                                  },
+                                ),
+                              );
+                            },
+                            icon: Icon(
+                              Icons.note_add_outlined,
+                              color: Colors.white,
+                            ),
+                            label: Text(
+                              'Record Manual Sales',
+                              style: TextStyle(color: Colors.white),
+                            ),
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: Color(0xFF4CAF50),
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 12),
+
+                      GridView.builder(
+                        shrinkWrap: true,
+                        physics: const NeverScrollableScrollPhysics(),
+                        itemCount: filteredProducts.length,
+                        gridDelegate:
+                            const SliverGridDelegateWithFixedCrossAxisCount(
+                              crossAxisCount: 2,
+                              mainAxisSpacing: 12,
+                              crossAxisSpacing: 12,
+                              childAspectRatio: 0.325,
+                            ),
+                        itemBuilder: (context, index) {
+                          final product = filteredProducts[index];
+                          return _productCard(product);
+                        },
+                      ),
+                    ],
                   ),
-                  itemBuilder: (context, index) {
-                    final product = filteredProducts[index];
-                    return _productCard(product);
-                  },
                 ),
-              ],
+              ),
             ),
-          ),
+          ],
         ),
       ],
     );
@@ -316,105 +343,352 @@ class _AdminShopState extends State<AdminShop> {
   }
 
   Widget _productCard(Product product) {
+    int totalInventory = product.readyStock + product.onSale + product.sold;
+    String status = _getStockStatus(product);
+    Color statusColor = _getStatusColor(status);
+
     return Container(
       decoration: BoxDecoration(
-        color: Colors.white,
-        boxShadow: const [
-          BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+        gradient: LinearGradient(
+          begin: Alignment.topCenter,
+          end: Alignment.bottomCenter,
+          colors: [Colors.white, Colors.grey.shade50],
+        ),
+        boxShadow: [
+          BoxShadow(
+            // ignore: deprecated_member_use
+            color: statusColor.withOpacity(0.1),
+            blurRadius: 8,
+            offset: Offset(0, 4),
+          ),
         ],
-        borderRadius: BorderRadius.circular(12),
-        border: Border.all(color: Colors.grey.shade300),
+        borderRadius: BorderRadius.circular(16),
+        // ignore: deprecated_member_use
+        border: Border.all(color: statusColor.withOpacity(0.3), width: 1.5),
       ),
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
+          // Status Badge
+          Align(
+            alignment: Alignment.topRight,
+            child: Container(
+              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              decoration: BoxDecoration(
+                color: statusColor,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Text(
+                status,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 10,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+            ),
+          ),
+
+          // Product Image
           Container(
             width: double.infinity,
             height: 120,
             decoration: BoxDecoration(
               borderRadius: BorderRadius.circular(12),
               color: Colors.grey.shade100,
+              border: Border.all(color: Colors.grey.shade200),
             ),
             child: ClipRRect(
               borderRadius: BorderRadius.circular(12),
               child: Image.asset(product.imagePath, fit: BoxFit.cover),
             ),
           ),
+
           const SizedBox(height: 12),
+
+          // Product Name
           Text(
             product.name,
-            style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 14),
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              height: 1.2,
+            ),
             textAlign: TextAlign.center,
             maxLines: 2,
             overflow: TextOverflow.ellipsis,
           ),
+
           const SizedBox(height: 6),
-          Text(
-            product.category,
-            style: const TextStyle(color: Colors.grey, fontSize: 12),
-            textAlign: TextAlign.center,
-          ),
-          const SizedBox(height: 6),
-          Text(
-            'RM ${product.price.toStringAsFixed(2)}',
-            style: TextStyle(
-              fontWeight: FontWeight.bold,
-              color: Colors.green[700],
-              fontSize: 16,
-            ),
-          ),
-          const SizedBox(height: 12),
-          const Divider(),
+
+          // Category and Price Column
           Column(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              _stockRow('Ready Stock', product.readyStock.toString()),
-              _stockRow('On Sale', product.onSale.toString()),
-              _stockRow('Sold', product.sold.toString()),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.category, size: 14, color: Colors.grey[600]),
+                  SizedBox(width: 4),
+                  Text(
+                    product.category,
+                    style: TextStyle(color: Colors.grey[600], fontSize: 12),
+                  ),
+                ],
+              ),
+              SizedBox(height: 4),
+              Row(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Text(
+                    'RM ${product.price.toStringAsFixed(2)}',
+                    style: TextStyle(
+                      fontWeight: FontWeight.bold,
+                      color: Colors.green[700],
+                      fontSize: 14,
+                    ),
+                  ),
+                ],
+              ),
             ],
           ),
-          const Spacer(),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton.icon(
-              onPressed: () => _showPutOnSaleDialog(product),
-              icon: const Icon(Icons.sell_outlined, color: Colors.white),
-              label: const Text(
-                'Put On Sale',
-                style: TextStyle(color: Colors.white),
-              ),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.green[700],
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(8),
+
+          const SizedBox(height: 5),
+
+          // Total Inventory
+          Container(
+            padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+            decoration: BoxDecoration(
+              color: Colors.blue.shade50,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                Icon(Icons.inventory_2, size: 16, color: Colors.blue[700]),
+                SizedBox(width: 6),
+                Text(
+                  'Total: $totalInventory',
+                  style: TextStyle(
+                    color: Colors.blue[700],
+                    fontWeight: FontWeight.w600,
+                    fontSize: 12,
+                  ),
+                ),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 2),
+
+          // Stock Details
+          Container(
+            padding: EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: Colors.grey.shade50,
+              borderRadius: BorderRadius.circular(8),
+            ),
+            child: Column(
+              children: [
+                _enhancedStockRow(
+                  'Ready Stock',
+                  product.readyStock.toString(),
+                  Colors.green,
+                ),
+                Divider(height: 8, thickness: 0.5),
+                _enhancedStockRow(
+                  'On Sale',
+                  product.onSale.toString(),
+                  Colors.orange,
+                ),
+                Divider(height: 8, thickness: 0.5),
+                _enhancedStockRow('Sold', product.sold.toString(), Colors.blue),
+              ],
+            ),
+          ),
+
+          const SizedBox(height: 2),
+
+          // Last Updated
+          Row(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Icon(Icons.access_time, size: 12, color: Colors.grey[500]),
+              SizedBox(width: 4),
+              Flexible(
+                child: Text(
+                  'Updated ${_formatLastUpdated(product.lastUpdated)}',
+                  style: TextStyle(color: Colors.grey[500], fontSize: 10),
+                  overflow: TextOverflow.ellipsis,
                 ),
               ),
-            ),
+            ],
+          ),
+
+          const SizedBox(height: 12),
+
+          // Action Buttons
+          Column(
+            children: [
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton.icon(
+                  onPressed: product.readyStock > 0
+                      ? () => _showInventoryDialog(product, true)
+                      : null,
+                  icon: const Icon(
+                    Icons.sell_outlined,
+                    color: Colors.white,
+                    size: 16,
+                  ),
+                  label: const Text(
+                    'Put On Sale',
+                    style: TextStyle(color: Colors.white, fontSize: 12),
+                  ),
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: product.readyStock > 0
+                        ? Colors.green[700]
+                        : Colors.grey,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                  ),
+                ),
+              ),
+              const SizedBox(height: 6),
+              SizedBox(
+                width: double.infinity,
+                child: OutlinedButton.icon(
+                  onPressed: product.onSale > 0
+                      ? () => _showInventoryDialog(product, false)
+                      : null,
+                  icon: Icon(
+                    Icons.undo,
+                    color: product.onSale > 0 ? Colors.blue[700] : Colors.grey,
+                    size: 16,
+                  ),
+                  label: Text(
+                    'Move to Ready Stock',
+                    style: TextStyle(
+                      color: product.onSale > 0
+                          ? Colors.blue[700]
+                          : Colors.grey,
+                      fontSize: 12,
+                    ),
+                  ),
+                  style: OutlinedButton.styleFrom(
+                    side: BorderSide(
+                      color: product.onSale > 0
+                          ? Colors.blue[300]!
+                          : Colors.grey,
+                    ),
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                    padding: EdgeInsets.symmetric(vertical: 8),
+                  ),
+                ),
+              ),
+            ],
           ),
         ],
       ),
     );
   }
 
-  Widget _stockRow(String label, String count) {
+
+  Widget _enhancedStockRow(String label, String count, Color color) {
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 1),
+      padding: const EdgeInsets.symmetric(vertical: 4),
       child: Row(
         mainAxisAlignment: MainAxisAlignment.spaceBetween,
         children: [
-          Text(label, style: const TextStyle(color: Colors.grey, fontSize: 12)),
+          Row(
+            children: [
+              Icon(_getStockIcon(label), size: 14, color: color),
+              SizedBox(width: 6),
+              Text(
+                label,
+                style: TextStyle(
+                  color: color,
+                  fontSize: 12,
+                  fontWeight: FontWeight.w500,
+                ),
+              ),
+            ],
+          ),
           Text(
             count,
-            style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 12),
+            style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 13,
+              color: color,
+            ),
           ),
         ],
       ),
     );
   }
 
-  void _showPutOnSaleDialog(Product product) {
-    int maxReadyStock = product.readyStock;
-    int currentOnSale = product.onSale;
+  IconData _getStockIcon(String label) {
+    switch (label) {
+      case 'Ready Stock':
+        return Icons.inventory_2;
+      case 'On Sale':
+        return Icons.sell;
+      case 'Sold':
+        return Icons.shopping_cart;
+      default:
+        return Icons.help;
+    }
+  }
+
+  String _getStockStatus(Product product) {
+    if (product.readyStock == 0 && product.onSale == 0) {
+      return 'Out of Stock';
+    } else if (product.readyStock < 10 && product.readyStock > 0) {
+      return 'Low Stock';
+    } else if (product.onSale > 0) {
+      return 'On Sale';
+    } else {
+      return 'In Stock';
+    }
+  }
+
+  Color _getStatusColor(String status) {
+    switch (status) {
+      case 'Out of Stock':
+        return Colors.red;
+      case 'Low Stock':
+        return Colors.orange;
+      case 'On Sale':
+        return Colors.blue;
+      case 'In Stock':
+        return Colors.green;
+      default:
+        return Colors.grey;
+    }
+  }
+
+  String _formatLastUpdated(DateTime dateTime) {
+    final now = DateTime.now();
+    final difference = now.difference(dateTime);
+
+    if (difference.inDays > 0) {
+      return '${difference.inDays}d ago';
+    } else if (difference.inHours > 0) {
+      return '${difference.inHours}h ago';
+    } else if (difference.inMinutes > 0) {
+      return '${difference.inMinutes}m ago';
+    } else {
+      return 'Just now';
+    }
+  }
+
+  void _showInventoryDialog(Product product, bool toSale) {
+    int maxQuantity = toSale ? product.readyStock : product.onSale;
     final TextEditingController qtyController = TextEditingController(
       text: '0',
     );
@@ -428,7 +702,7 @@ class _AdminShopState extends State<AdminShop> {
           builder: (context, setStateDialog) {
             void updateQuantity(int val) {
               if (val < 0) val = 0;
-              if (val > maxReadyStock) val = maxReadyStock;
+              if (val > maxQuantity) val = maxQuantity;
               setStateDialog(() {
                 selectedQty = val;
                 qtyController.text = selectedQty.toString();
@@ -444,8 +718,12 @@ class _AdminShopState extends State<AdminShop> {
                   padding: const EdgeInsets.symmetric(horizontal: 4),
                   child: ElevatedButton(
                     style: ElevatedButton.styleFrom(
-                      backgroundColor: Colors.green[50],
-                      foregroundColor: Colors.green[700],
+                      backgroundColor: toSale
+                          ? Colors.green[50]
+                          : Colors.blue[50],
+                      foregroundColor: toSale
+                          ? Colors.green[700]
+                          : Colors.blue[700],
                       elevation: 0,
                       padding: const EdgeInsets.symmetric(vertical: 8),
                       shape: RoundedRectangleBorder(
@@ -454,7 +732,7 @@ class _AdminShopState extends State<AdminShop> {
                       textStyle: const TextStyle(fontWeight: FontWeight.w600),
                     ),
                     onPressed: () {
-                      int newQty = (maxReadyStock * percent).round();
+                      int newQty = (maxQuantity * percent).round();
                       updateQuantity(newQty);
                     },
                     child: Text(label),
@@ -470,7 +748,7 @@ class _AdminShopState extends State<AdminShop> {
               titlePadding: EdgeInsets.zero,
               title: Container(
                 decoration: BoxDecoration(
-                  color: Colors.green[700],
+                  color: toSale ? Colors.green[700] : Colors.blue[700],
                   borderRadius: const BorderRadius.only(
                     topLeft: Radius.circular(20),
                     topRight: Radius.circular(20),
@@ -482,11 +760,14 @@ class _AdminShopState extends State<AdminShop> {
                 ),
                 child: Row(
                   children: [
-                    const Icon(Icons.sell_outlined, color: Colors.white),
+                    Icon(
+                      toSale ? Icons.sell_outlined : Icons.undo,
+                      color: Colors.white,
+                    ),
                     const SizedBox(width: 8),
-                    const Text(
-                      'Put on Sale',
-                      style: TextStyle(
+                    Text(
+                      toSale ? 'Put on Sale' : 'Move to Ready Stock',
+                      style: const TextStyle(
                         color: Colors.white,
                         fontWeight: FontWeight.bold,
                         fontSize: 18,
@@ -559,31 +840,37 @@ class _AdminShopState extends State<AdminShop> {
                       ),
                       const SizedBox(height: 16),
 
-                      // Ready Stock and On Sale boxes
+                      // Stock boxes
                       Row(
                         children: [
                           Expanded(
                             child: Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Colors.green[50],
+                                color: toSale
+                                    ? Colors.green[50]
+                                    : Colors.blue[50],
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'Ready Stock',
+                                    toSale ? 'Ready Stock' : 'On Sale',
                                     style: TextStyle(
-                                      color: Colors.green[700],
+                                      color: toSale
+                                          ? Colors.green[700]
+                                          : Colors.blue[700],
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    maxReadyStock.toString(),
+                                    maxQuantity.toString(),
                                     style: TextStyle(
-                                      color: Colors.green[900],
+                                      color: toSale
+                                          ? Colors.green[900]
+                                          : Colors.blue[900],
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -597,24 +884,33 @@ class _AdminShopState extends State<AdminShop> {
                             child: Container(
                               padding: const EdgeInsets.all(12),
                               decoration: BoxDecoration(
-                                color: Colors.blue[50],
+                                color: toSale
+                                    ? Colors.blue[50]
+                                    : Colors.green[50],
                                 borderRadius: BorderRadius.circular(8),
                               ),
                               child: Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
                                   Text(
-                                    'On Sale',
+                                    toSale ? 'On Sale' : 'Ready Stock',
                                     style: TextStyle(
-                                      color: Colors.blue[700],
+                                      color: toSale
+                                          ? Colors.blue[700]
+                                          : Colors.green[700],
                                       fontWeight: FontWeight.w600,
                                     ),
                                   ),
                                   const SizedBox(height: 4),
                                   Text(
-                                    currentOnSale.toString(),
+                                    (toSale
+                                            ? product.onSale
+                                            : product.readyStock)
+                                        .toString(),
                                     style: TextStyle(
-                                      color: Colors.blue[900],
+                                      color: toSale
+                                          ? Colors.blue[900]
+                                          : Colors.green[900],
                                       fontSize: 18,
                                       fontWeight: FontWeight.bold,
                                     ),
@@ -627,22 +923,8 @@ class _AdminShopState extends State<AdminShop> {
                       ),
                       const SizedBox(height: 12),
 
-                      TextButton(
-                        onPressed: () {},
-                        style: TextButton.styleFrom(
-                          padding: EdgeInsets.zero,
-                          minimumSize: const Size(50, 20),
-                          alignment: Alignment.centerLeft,
-                          textStyle: const TextStyle(color: Colors.blue),
-                        ), // Your logic here
-                        child: const Text(
-                          'Move items from Ready Stock to On Sale inventory',
-                        ),
-                      ),
-                      const SizedBox(height: 12),
-
-                      const Text(
-                        'Quantity to Put on Sale',
+                      Text(
+                        'Quantity to ${toSale ? 'Put on Sale' : 'Move to Ready Stock'}',
                         style: TextStyle(fontWeight: FontWeight.w600),
                       ),
                       const SizedBox(height: 6),
@@ -658,13 +940,12 @@ class _AdminShopState extends State<AdminShop> {
                             borderRadius: BorderRadius.circular(8),
                           ),
                           hintText: '0',
-                          counterText:
-                              'Maximum: $maxReadyStock units from ready stock',
+                          counterText: 'Maximum: $maxQuantity units',
                         ),
-                        maxLength: maxReadyStock.toString().length,
+                        maxLength: maxQuantity.toString().length,
                         onChanged: (val) {
                           int newVal = int.tryParse(val) ?? 0;
-                          if (newVal > maxReadyStock) newVal = maxReadyStock;
+                          if (newVal > maxQuantity) newVal = maxQuantity;
                           setStateDialog(() {
                             selectedQty = newVal;
                             qtyController.text = selectedQty.toString();
@@ -705,19 +986,29 @@ class _AdminShopState extends State<AdminShop> {
                             child: ElevatedButton(
                               style: ElevatedButton.styleFrom(
                                 backgroundColor: selectedQty > 0
-                                    ? Colors.green[700]
+                                    ? (toSale
+                                          ? Colors.green[700]
+                                          : Colors.blue[700])
                                     : Colors.grey,
                               ),
                               onPressed: selectedQty > 0
                                   ? () {
                                       setState(() {
-                                        product.onSale += selectedQty;
-                                        product.readyStock -= selectedQty;
+                                        if (toSale) {
+                                          product.onSale += selectedQty;
+                                          product.readyStock -= selectedQty;
+                                        } else {
+                                          product.readyStock += selectedQty;
+                                          product.onSale -= selectedQty;
+                                        }
+                                        product.lastUpdated = DateTime.now();
                                       });
                                       Navigator.of(context).pop();
                                     }
                                   : null,
-                              child: const Text('Confirm Sale'),
+                              child: Text(
+                                toSale ? 'Confirm Sale' : 'Confirm Move',
+                              ),
                             ),
                           ),
                         ],
@@ -732,6 +1023,7 @@ class _AdminShopState extends State<AdminShop> {
       },
     );
   }
+
 }
 
 class Product {
@@ -742,6 +1034,7 @@ class Product {
   int sold;
   String imagePath;
   String category;
+  DateTime lastUpdated;
 
   Product({
     required this.name,
@@ -751,5 +1044,6 @@ class Product {
     required this.sold,
     required this.imagePath,
     required this.category,
+    required this.lastUpdated,
   });
 }
