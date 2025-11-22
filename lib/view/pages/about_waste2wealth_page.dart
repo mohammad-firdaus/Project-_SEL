@@ -3,13 +3,15 @@ import 'package:flutter/material.dart';
 class WasteToWealthInfoPage extends StatelessWidget {
   final Color greenColor = const Color(0xFF42B642);
 
+  const WasteToWealthInfoPage({super.key});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.white,
       appBar: AppBar(
         backgroundColor: greenColor,
-        title: Text('About Us', style: TextStyle(fontWeight: FontWeight.bold),),
+        title: Text('About Us', style: TextStyle(fontWeight: FontWeight.bold)),
         foregroundColor: Colors.white,
         elevation: 0,
       ),
@@ -126,29 +128,33 @@ class WasteToWealthInfoPage extends StatelessWidget {
               SizedBox(height: 16),
 
               _coreValueItem(
-                  number: '1',
-                  title: 'Sustainability First',
-                  description:
-                      'Every decision we make prioritizes the health of our planet and future generations.',
-                  greenColor: greenColor),
+                number: '1',
+                title: 'Sustainability First',
+                description:
+                    'Every decision we make prioritizes the health of our planet and future generations.',
+                greenColor: greenColor,
+              ),
               _coreValueItem(
-                  number: '2',
-                  title: 'Community Empowerment',
-                  description:
-                      'We believe in the power of collective action to drive meaningful environmental change.',
-                  greenColor: greenColor),
+                number: '2',
+                title: 'Community Empowerment',
+                description:
+                    'We believe in the power of collective action to drive meaningful environmental change.',
+                greenColor: greenColor,
+              ),
               _coreValueItem(
-                  number: '3',
-                  title: 'Innovation & Technology',
-                  description:
-                      'Using cutting-edge solutions to make recycling accessible, rewarding, and fun for everyone.',
-                  greenColor: greenColor),
+                number: '3',
+                title: 'Innovation & Technology',
+                description:
+                    'Using cutting-edge solutions to make recycling accessible, rewarding, and fun for everyone.',
+                greenColor: greenColor,
+              ),
               _coreValueItem(
-                  number: '4',
-                  title: 'Transparency & Trust',
-                  description:
-                      'Open communication about our processes, impact, and how your support drives real results.',
-                  greenColor: greenColor),
+                number: '4',
+                title: 'Transparency & Trust',
+                description:
+                    'Open communication about our processes, impact, and how your support drives real results.',
+                greenColor: greenColor,
+              ),
 
               SizedBox(height: 28),
 
@@ -167,15 +173,17 @@ class WasteToWealthInfoPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _impactItem(
-                      number: '250k+',
-                      label: 'Bins Recycled',
-                      icon: Icons.delete_sweep_outlined,
-                      greenColor: greenColor),
+                    number: '250k+',
+                    label: 'Bins Recycled',
+                    icon: Icons.delete_sweep_outlined,
+                    greenColor: greenColor,
+                  ),
                   _impactItem(
-                      number: '15k+',
-                      label: 'Active Members',
-                      icon: Icons.people_outline,
-                      greenColor: greenColor),
+                    number: '15k+',
+                    label: 'Active Members',
+                    icon: Icons.people_outline,
+                    greenColor: greenColor,
+                  ),
                 ],
               ),
 
@@ -185,15 +193,17 @@ class WasteToWealthInfoPage extends StatelessWidget {
                 mainAxisAlignment: MainAxisAlignment.spaceAround,
                 children: [
                   _impactItem(
-                      number: '180T',
-                      label: 'CO2 Saved',
-                      icon: Icons.cloud_outlined,
-                      greenColor: greenColor),
+                    number: '180T',
+                    label: 'CO2 Saved',
+                    icon: Icons.cloud_outlined,
+                    greenColor: greenColor,
+                  ),
                   _impactItem(
-                      number: '500+',
-                      label: 'Community Events',
-                      icon: Icons.event_outlined,
-                      greenColor: greenColor),
+                    number: '500+',
+                    label: 'Community Events',
+                    icon: Icons.event_outlined,
+                    greenColor: greenColor,
+                  ),
                 ],
               ),
 
@@ -212,9 +222,10 @@ class WasteToWealthInfoPage extends StatelessWidget {
                     Text(
                       'A Vision for 2030',
                       style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: Colors.white),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: Colors.white,
+                      ),
                     ),
                     SizedBox(height: 12),
                     Text(
@@ -227,9 +238,13 @@ class WasteToWealthInfoPage extends StatelessWidget {
                     ),
                     SizedBox(height: 12),
                     _visionBullet('100,000+ active recyclers'),
-                    _visionBullet('1 million tons of waste diverted from landfills'),
+                    _visionBullet(
+                      '1 million tons of waste diverted from landfills',
+                    ),
                     _visionBullet('Zero-waste communities across Malaysia'),
-                    _visionBullet('Partnerships with 10,000+ eco-friendly brands'),
+                    _visionBullet(
+                      'Partnerships with 10,000+ eco-friendly brands',
+                    ),
                   ],
                 ),
               ),
@@ -242,9 +257,10 @@ class WasteToWealthInfoPage extends StatelessWidget {
                     Text(
                       'Join Our Green Movement',
                       style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 20,
-                          color: greenColor),
+                        fontWeight: FontWeight.bold,
+                        fontSize: 20,
+                        color: greenColor,
+                      ),
                     ),
                     SizedBox(height: 8),
                     Text(
@@ -256,9 +272,10 @@ class WasteToWealthInfoPage extends StatelessWidget {
                     Text(
                       'Let’s transform waste into wealth, together! 🌍',
                       style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
-                          color: greenColor),
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                        color: greenColor,
+                      ),
                       textAlign: TextAlign.center,
                     ),
                   ],
@@ -278,16 +295,20 @@ class WasteToWealthInfoPage extends StatelessWidget {
 
               _contactRow(Icons.email_outlined, 'contact@wastetowealth.my'),
               _contactRow(Icons.phone_outlined, '+603-9123-4567'),
-              _contactRow(Icons.location_on_outlined, '123 Eco St, Kuala Lumpur'),
+              _contactRow(
+                Icons.location_on_outlined,
+                '123 Eco St, Kuala Lumpur',
+              ),
 
               SizedBox(height: 24),
 
               Center(
-                  child: Text(
-                '© 2025 WasteToWealth. Making Malaysia Sustainable.',
-                style: TextStyle(color: Colors.grey, fontSize: 12),
-                textAlign: TextAlign.center,
-              )),
+                child: Text(
+                  '© 2025 WasteToWealth. Making Malaysia Sustainable.',
+                  style: TextStyle(color: Colors.grey, fontSize: 12),
+                  textAlign: TextAlign.center,
+                ),
+              ),
             ],
           ),
         ),
@@ -295,11 +316,12 @@ class WasteToWealthInfoPage extends StatelessWidget {
     );
   }
 
-  Widget _infoItem(
-      {required IconData icon,
-      required String title,
-      required String description,
-      required Color iconColor}) {
+  Widget _infoItem({
+    required IconData icon,
+    required String title,
+    required String description,
+    required Color iconColor,
+  }) {
     return Padding(
       padding: EdgeInsets.only(bottom: 20),
       child: Row(
@@ -311,12 +333,15 @@ class WasteToWealthInfoPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style:
-                        TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                Text(
+                  title,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
                 SizedBox(height: 4),
-                Text(description,
-                    style: TextStyle(fontSize: 14, color: Colors.black87)),
+                Text(
+                  description,
+                  style: TextStyle(fontSize: 14, color: Colors.black87),
+                ),
               ],
             ),
           ),
@@ -325,11 +350,12 @@ class WasteToWealthInfoPage extends StatelessWidget {
     );
   }
 
-  Widget _coreValueItem(
-      {required String number,
-      required String title,
-      required String description,
-      required Color greenColor}) {
+  Widget _coreValueItem({
+    required String number,
+    required String title,
+    required String description,
+    required Color greenColor,
+  }) {
     return Padding(
       padding: EdgeInsets.only(bottom: 16),
       child: Row(
@@ -345,50 +371,59 @@ class WasteToWealthInfoPage extends StatelessWidget {
             alignment: Alignment.center,
             child: Text(
               number,
-              style:
-                  TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+              style: TextStyle(
+                color: Colors.white,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           SizedBox(width: 12),
           Expanded(
-              child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Text(title,
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
-              SizedBox(height: 4),
-              Text(description, style: TextStyle(fontSize: 14)),
-            ],
-          ))
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  title,
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
+                ),
+                SizedBox(height: 4),
+                Text(description, style: TextStyle(fontSize: 14)),
+              ],
+            ),
+          ),
         ],
       ),
     );
   }
 
-  Widget _impactItem(
-      {required String number,
-      required String label,
-      required IconData icon,
-      required Color greenColor}) {
+  Widget _impactItem({
+    required String number,
+    required String label,
+    required IconData icon,
+    required Color greenColor,
+  }) {
     return Column(
       children: [
         Container(
           padding: EdgeInsets.all(16),
           decoration: BoxDecoration(
-              color: greenColor.withOpacity(0.15),
-              borderRadius: BorderRadius.circular(12)),
+            // ignore: deprecated_member_use
+            color: greenColor.withOpacity(0.15),
+            borderRadius: BorderRadius.circular(12),
+          ),
           child: Icon(icon, size: 36, color: greenColor),
         ),
         SizedBox(height: 10),
         Text(
           number,
           style: TextStyle(
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-              color: Colors.black87),
+            fontWeight: FontWeight.bold,
+            fontSize: 18,
+            color: Colors.black87,
+          ),
         ),
         SizedBox(height: 4),
-        Container(
+        SizedBox(
           width: 90,
           child: Text(
             label,
@@ -412,7 +447,7 @@ class WasteToWealthInfoPage extends StatelessWidget {
               text,
               style: TextStyle(color: Colors.white, fontSize: 15),
             ),
-          )
+          ),
         ],
       ),
     );

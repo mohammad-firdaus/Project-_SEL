@@ -7,6 +7,8 @@ import 'package:project_sel/view/pages/welcome_page.dart';
 
 class AdminProfile extends StatelessWidget {
   final Color greenColor = const Color(0xFF42B642);
+
+  const AdminProfile({super.key});
   @override
   Widget build(BuildContext context) {
     return Stack(

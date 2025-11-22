@@ -7,7 +7,7 @@ import 'package:project_sel/view/pages/admin_upcoming_event_manage_page.dart';
 import 'package:project_sel/view/pages/product_catalog_page.dart';
 
 class AdminHome extends StatefulWidget {
-  AdminHome({super.key});
+  const AdminHome({super.key});
 
   @override
   State<AdminHome> createState() => _AdminHomeState();
@@ -388,6 +388,7 @@ class _AdminHomeState extends State<AdminHome> {
                     onPressed: _pickPdfFile,
                     icon: Icon(Icons.upload_file, color: primaryGreen),
                     style: ElevatedButton.styleFrom(
+                      // ignore: deprecated_member_use
                       backgroundColor: primaryGreen.withOpacity(0.15),
                       foregroundColor: primaryGreen,
                       padding: EdgeInsets.symmetric(

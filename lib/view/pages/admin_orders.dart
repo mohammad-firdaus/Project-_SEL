@@ -11,6 +11,7 @@ class AdminOrders extends StatefulWidget {
   const AdminOrders({super.key});
 
   @override
+  // ignore: library_private_types_in_public_api
   _AdminOrdersState createState() => _AdminOrdersState();
 }
 
@@ -460,6 +461,7 @@ class _AdminOrdersState extends State<AdminOrders> {
                   ),
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
+                    // ignore: deprecated_member_use
                     color: color.withOpacity(0.15),
                     border: Border.all(color: color),
                   ),
