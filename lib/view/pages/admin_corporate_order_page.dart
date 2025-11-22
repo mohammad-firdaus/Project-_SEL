@@ -83,7 +83,7 @@ class _CorporateOrdersPageState extends State<CorporateOrdersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Corporate Orders'), // No back button
+        title: Text('Corporate Orders'), 
         titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
         backgroundColor: greenColor,
         elevation: 1,
