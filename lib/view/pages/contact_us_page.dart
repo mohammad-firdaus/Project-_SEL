@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 
 class ContactUsPage extends StatelessWidget {
-  const ContactUsPage({Key? key}) : super(key: key);
+  const ContactUsPage({super.key});
 
   final String instagramHandle = '@wastetowealth';
   final String tiktokHandle = '@wastetowealth.my';
@@ -54,9 +54,10 @@ class ContactUsPage extends StatelessWidget {
                       child: Text(
                         'Get in Touch',
                         style: TextStyle(
-                            fontSize: 24,
-                            fontWeight: FontWeight.w700,
-                            color: Colors.black),
+                          fontSize: 24,
+                          fontWeight: FontWeight.w700,
+                          color: Colors.black,
+                        ),
                       ),
                     ),
                     SizedBox(height: 8),
@@ -73,8 +74,10 @@ class ContactUsPage extends StatelessWidget {
                     // Social Media Section
                     Text(
                       'Social Media',
-                      style:
-                          TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
                     ),
                     SizedBox(height: 16),
 
@@ -103,8 +106,10 @@ class ContactUsPage extends StatelessWidget {
                     // Direct Contact Section
                     Text(
                       'Direct Contact',
-                      style:
-                          TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                      style: TextStyle(
+                        fontWeight: FontWeight.w600,
+                        fontSize: 16,
+                      ),
                     ),
 
                     SizedBox(height: 16),
@@ -135,11 +140,14 @@ class ContactUsPage extends StatelessWidget {
                     Container(
                       width: double.infinity,
                       decoration: BoxDecoration(
+                        // ignore: deprecated_member_use
                         color: Colors.green.withOpacity(0.07),
                         borderRadius: BorderRadius.circular(12),
                       ),
                       padding: EdgeInsets.symmetric(
-                          horizontal: 20, vertical: 20),
+                        horizontal: 20,
+                        vertical: 20,
+                      ),
                       child: Column(
                         children: [
                           Text(
@@ -153,15 +161,19 @@ class ContactUsPage extends StatelessWidget {
                           SizedBox(height: 6),
                           Text(
                             'Monday - Friday, 8:00 AM - 6:00 PM (GMT+8)',
-                            style:
-                                TextStyle(fontSize: 13, color: Colors.black87),
+                            style: TextStyle(
+                              fontSize: 13,
+                              color: Colors.black87,
+                            ),
                             textAlign: TextAlign.center,
                           ),
                           SizedBox(height: 10),
                           Text(
                             'We typically respond within 24 hours',
-                            style:
-                                TextStyle(fontSize: 12, color: Colors.grey[700]),
+                            style: TextStyle(
+                              fontSize: 12,
+                              color: Colors.grey[700],
+                            ),
                             textAlign: TextAlign.center,
                           ),
                         ],
@@ -210,11 +222,7 @@ class ContactUsPage extends StatelessWidget {
                 style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600),
               ),
             ),
-            Icon(
-              Icons.open_in_new,
-              color: Colors.grey[600],
-              size: 22,
-            ),
+            Icon(Icons.open_in_new, color: Colors.grey[600], size: 22),
           ],
         ),
       ),
@@ -240,12 +248,7 @@ class ContactUsPage extends StatelessWidget {
           children: [
             Icon(icon, color: Colors.green, size: 24),
             SizedBox(width: 16),
-            Expanded(
-              child: Text(
-                contactText,
-                style: TextStyle(fontSize: 15),
-              ),
-            ),
+            Expanded(child: Text(contactText, style: TextStyle(fontSize: 15))),
             Icon(Icons.open_in_new, size: 18, color: Colors.grey[600]),
           ],
         ),

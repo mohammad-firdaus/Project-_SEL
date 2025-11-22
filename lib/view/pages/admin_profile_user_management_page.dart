@@ -243,7 +243,7 @@ class _UserManagementPageState extends State<UserManagementPage> {
             Expanded(
               child: ListView.separated(
                 itemCount: _filteredUsers.length,
-                separatorBuilder: (_, __) => SizedBox(height: 10),
+                separatorBuilder: (_, _) => SizedBox(height: 10),
                 itemBuilder: (context, index) {
                   final user = _filteredUsers[index];
                   return _userCard(

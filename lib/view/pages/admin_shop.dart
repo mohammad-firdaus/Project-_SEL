@@ -598,7 +598,6 @@ class _AdminShopState extends State<AdminShop> {
     );
   }
 
-
   Widget _enhancedStockRow(String label, String count, Color color) {
     return Padding(
       padding: const EdgeInsets.symmetric(vertical: 4),
@@ -1023,7 +1022,6 @@ class _AdminShopState extends State<AdminShop> {
       },
     );
   }
-
 }
 
 class Product {

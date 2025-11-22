@@ -18,6 +18,8 @@ class CustomerWidgetTree extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    // Reset the notifier to 0 for this user type to avoid stale state from previous logins
+    selectedPageNotifier.value = 0;
     return Scaffold(
       appBar: AppBar(
         leading: Padding(

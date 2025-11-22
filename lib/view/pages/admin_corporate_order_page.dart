@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 
 class CorporateOrdersPage extends StatefulWidget {
+  const CorporateOrdersPage({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _CorporateOrdersPageState createState() => _CorporateOrdersPageState();
 }
 
@@ -83,7 +86,7 @@ class _CorporateOrdersPageState extends State<CorporateOrdersPage> {
   Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(
-        title: Text('Corporate Orders'), 
+        title: Text('Corporate Orders'),
         titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
         backgroundColor: greenColor,
         elevation: 1,
@@ -239,6 +242,7 @@ class _CorporateOrdersPageState extends State<CorporateOrdersPage> {
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(
+                    // ignore: deprecated_member_use
                     color: statusColor.withOpacity(0.2),
                     borderRadius: BorderRadius.circular(12),
                   ),

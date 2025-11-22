@@ -209,23 +209,23 @@ class _AdminProductsState extends State<AdminProducts> {
       'Keychain Wrist Strap': ['Standard', 'Deluxe'],
     };
 
-    String? _selectedCollection;
-    String? _selectedProductType;
-    String? _selectedCategory;
+    String? selectedCollection;
+    String? selectedProductType;
+    String? selectedCategory;
 
     showDialog(
       context: context,
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            final isCorporate = _selectedCollection == 'Corporate';
-            final productTypes = _selectedCollection != null
-                ? collectionToProductTypes[_selectedCollection!]!
+            final isCorporate = selectedCollection == 'Corporate';
+            final productTypes = selectedCollection != null
+                ? collectionToProductTypes[selectedCollection!]!
                 : <String>[];
             final categories =
-                (_selectedProductType != null &&
-                    productTypeToCategories.containsKey(_selectedProductType!))
-                ? productTypeToCategories[_selectedProductType!]!
+                (selectedProductType != null &&
+                    productTypeToCategories.containsKey(selectedProductType!))
+                ? productTypeToCategories[selectedProductType!]!
                 : <String>[];
             final showCategory = categories.isNotEmpty;
 
@@ -379,7 +379,7 @@ class _AdminProductsState extends State<AdminProducts> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                value: _selectedCollection,
+                                initialValue: selectedCollection,
                                 hint: const Text('Select Collection'),
                                 items: collectionToProductTypes.keys
                                     .map(
@@ -391,9 +391,9 @@ class _AdminProductsState extends State<AdminProducts> {
                                     .toList(),
                                 onChanged: (val) {
                                   setState(() {
-                                    _selectedCollection = val;
-                                    _selectedProductType = null;
-                                    _selectedCategory = null;
+                                    selectedCollection = val;
+                                    selectedProductType = null;
+                                    selectedCategory = null;
                                   });
                                 },
                                 validator: (value) =>
@@ -415,7 +415,7 @@ class _AdminProductsState extends State<AdminProducts> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                value: _selectedProductType,
+                                initialValue: selectedProductType,
                                 hint: const Text('Select Product Type'),
                                 items: productTypes
                                     .map(
@@ -427,9 +427,9 @@ class _AdminProductsState extends State<AdminProducts> {
                                     .toList(),
                                 onChanged: (val) {
                                   setState(() {
-                                    _selectedProductType = val;
+                                    selectedProductType = val;
                                     // Reset category when product type changes
-                                    _selectedCategory = null;
+                                    selectedCategory = null;
                                   });
                                 },
                                 validator: (value) =>
@@ -454,7 +454,7 @@ class _AdminProductsState extends State<AdminProducts> {
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
-                                  value: _selectedCategory,
+                                  initialValue: selectedCategory,
                                   hint: const Text('Select Product Category'),
                                   items: categories
                                       .map(
@@ -466,7 +466,7 @@ class _AdminProductsState extends State<AdminProducts> {
                                       .toList(),
                                   onChanged: (val) {
                                     setState(() {
-                                      _selectedCategory = val;
+                                      selectedCategory = val;
                                     });
                                   },
                                   validator: (value) =>
@@ -506,10 +506,12 @@ class _AdminProductsState extends State<AdminProducts> {
                                       ),
                                       validator: (value) {
                                         if (isCorporate) return null;
-                                        if (value == null || value.isEmpty)
+                                        if (value == null || value.isEmpty) {
                                           return 'Enter ready stock';
-                                        if (int.tryParse(value) == null)
+                                        }
+                                        if (int.tryParse(value) == null) {
                                           return 'Must be a number';
+                                        }
                                         return null;
                                       },
                                       enabled: !isCorporate,
@@ -536,10 +538,12 @@ class _AdminProductsState extends State<AdminProducts> {
                                       ),
                                       validator: (value) {
                                         if (isCorporate) return null;
-                                        if (value == null || value.isEmpty)
+                                        if (value == null || value.isEmpty) {
                                           return 'Enter return stock';
-                                        if (int.tryParse(value) == null)
+                                        }
+                                        if (int.tryParse(value) == null) {
                                           return 'Must be a number';
+                                        }
                                         return null;
                                       },
                                       enabled: !isCorporate,
@@ -574,14 +578,16 @@ class _AdminProductsState extends State<AdminProducts> {
                                 ),
                                 validator: (value) {
                                   if (isCorporate) return null;
-                                  if (value == null || value.isEmpty)
+                                  if (value == null || value.isEmpty) {
                                     return 'Please enter price';
+                                  }
                                   final cleaned = value.replaceAll(
                                     RegExp(r'[^\d.]'),
                                     '',
                                   );
-                                  if (double.tryParse(cleaned) == null)
+                                  if (double.tryParse(cleaned) == null) {
                                     return 'Enter valid price';
+                                  }
                                   return null;
                                 },
                                 enabled: !isCorporate,
@@ -818,13 +824,13 @@ class _AdminProductsState extends State<AdminProducts> {
                                           final newProduct = ProductStock(
                                             name: _nameController.text.trim(),
                                             phase: _phaseController.text.trim(),
-                                            category: _selectedCategory ?? '',
+                                            category: selectedCategory ?? '',
 
                                             // For category field you might want a specific field depending on your ProductStock model
                                             collection:
-                                                _selectedCollection ?? '',
+                                                selectedCollection ?? '',
                                             productType:
-                                                _selectedProductType ?? '',
+                                                selectedProductType ?? '',
                                             variant: _variantController.text
                                                 .trim(),
                                             availableStock: readyStock,
@@ -908,9 +914,9 @@ class _AdminProductsState extends State<AdminProducts> {
       'Keychain Wrist Strap': ['Standard', 'Deluxe'],
     };
 
-    String? _selectedCollection = product.collection;
-    String? _selectedProductType = product.productType;
-    String? _selectedCategory = product.category.isEmpty
+    String? selectedCollection = product.collection;
+    String? selectedProductType = product.productType;
+    String? selectedCategory = product.category.isEmpty
         ? null
         : product.category;
 
@@ -919,14 +925,14 @@ class _AdminProductsState extends State<AdminProducts> {
       builder: (context) {
         return StatefulBuilder(
           builder: (context, setState) {
-            final isCorporate = _selectedCollection == 'Corporate';
-            final productTypes = _selectedCollection != null
-                ? collectionToProductTypes[_selectedCollection!]!
+            final isCorporate = selectedCollection == 'Corporate';
+            final productTypes = selectedCollection != null
+                ? collectionToProductTypes[selectedCollection!]!
                 : <String>[];
             final categories =
-                (_selectedProductType != null &&
-                    productTypeToCategories.containsKey(_selectedProductType!))
-                ? productTypeToCategories[_selectedProductType!]!
+                (selectedProductType != null &&
+                    productTypeToCategories.containsKey(selectedProductType!))
+                ? productTypeToCategories[selectedProductType!]!
                 : <String>[];
             final showCategory = categories.isNotEmpty;
 
@@ -1076,7 +1082,7 @@ class _AdminProductsState extends State<AdminProducts> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                value: _selectedCollection,
+                                initialValue: selectedCollection,
                                 hint: const Text('Select Collection'),
                                 items: collectionToProductTypes.keys
                                     .map(
@@ -1088,9 +1094,9 @@ class _AdminProductsState extends State<AdminProducts> {
                                     .toList(),
                                 onChanged: (val) {
                                   setState(() {
-                                    _selectedCollection = val;
-                                    _selectedProductType = null;
-                                    _selectedCategory = null;
+                                    selectedCollection = val;
+                                    selectedProductType = null;
+                                    selectedCategory = null;
                                   });
                                 },
                                 validator: (value) =>
@@ -1112,7 +1118,7 @@ class _AdminProductsState extends State<AdminProducts> {
                                     borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
-                                value: _selectedProductType,
+                                initialValue: selectedProductType,
                                 hint: const Text('Select Product Type'),
                                 items: productTypes
                                     .map(
@@ -1124,8 +1130,8 @@ class _AdminProductsState extends State<AdminProducts> {
                                     .toList(),
                                 onChanged: (val) {
                                   setState(() {
-                                    _selectedProductType = val;
-                                    _selectedCategory = null;
+                                    selectedProductType = val;
+                                    selectedCategory = null;
                                   });
                                 },
                                 validator: (value) =>
@@ -1150,7 +1156,7 @@ class _AdminProductsState extends State<AdminProducts> {
                                       borderRadius: BorderRadius.circular(12),
                                     ),
                                   ),
-                                  value: _selectedCategory,
+                                  initialValue: selectedCategory,
                                   hint: const Text('Select Product Category'),
                                   items: categories
                                       .map(
@@ -1162,7 +1168,7 @@ class _AdminProductsState extends State<AdminProducts> {
                                       .toList(),
                                   onChanged: (val) {
                                     setState(() {
-                                      _selectedCategory = val;
+                                      selectedCategory = val;
                                     });
                                   },
                                   validator: (value) =>
@@ -1202,10 +1208,12 @@ class _AdminProductsState extends State<AdminProducts> {
                                       ),
                                       validator: (value) {
                                         if (isCorporate) return null;
-                                        if (value == null || value.isEmpty)
+                                        if (value == null || value.isEmpty) {
                                           return 'Enter ready stock';
-                                        if (int.tryParse(value) == null)
+                                        }
+                                        if (int.tryParse(value) == null) {
                                           return 'Must be a number';
+                                        }
                                         return null;
                                       },
                                       enabled: !isCorporate,
@@ -1232,10 +1240,12 @@ class _AdminProductsState extends State<AdminProducts> {
                                       ),
                                       validator: (value) {
                                         if (isCorporate) return null;
-                                        if (value == null || value.isEmpty)
+                                        if (value == null || value.isEmpty) {
                                           return 'Enter return stock';
-                                        if (int.tryParse(value) == null)
+                                        }
+                                        if (int.tryParse(value) == null) {
                                           return 'Must be a number';
+                                        }
                                         return null;
                                       },
                                       enabled: !isCorporate,
@@ -1270,14 +1280,16 @@ class _AdminProductsState extends State<AdminProducts> {
                                 ),
                                 validator: (value) {
                                   if (isCorporate) return null;
-                                  if (value == null || value.isEmpty)
+                                  if (value == null || value.isEmpty) {
                                     return 'Please enter price';
+                                  }
                                   final cleaned = value.replaceAll(
                                     RegExp(r'[^\d.]'),
                                     '',
                                   );
-                                  if (double.tryParse(cleaned) == null)
+                                  if (double.tryParse(cleaned) == null) {
                                     return 'Enter valid price';
+                                  }
                                   return null;
                                 },
                                 enabled: !isCorporate,
@@ -1514,11 +1526,11 @@ class _AdminProductsState extends State<AdminProducts> {
                                           final updatedProduct = ProductStock(
                                             name: _nameController.text.trim(),
                                             phase: _phaseController.text.trim(),
-                                            category: _selectedCategory ?? '',
+                                            category: selectedCategory ?? '',
                                             collection:
-                                                _selectedCollection ?? '',
+                                                selectedCollection ?? '',
                                             productType:
-                                                _selectedProductType ?? '',
+                                                selectedProductType ?? '',
                                             variant: _variantController.text
                                                 .trim(),
                                             availableStock: readyStock,

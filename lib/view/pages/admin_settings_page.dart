@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 
 class AdminSettingsPage extends StatefulWidget {
+  const AdminSettingsPage({super.key});
+
   @override
   State<AdminSettingsPage> createState() => _AdminSettingsPageState();
 }
@@ -348,7 +350,10 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
             ElevatedButton.icon(
               onPressed: _saveNotificationSettings,
               icon: Icon(Icons.save, color: Colors.white),
-              label: Text('Save Notification Settings', style: TextStyle(color: Colors.white),),
+              label: Text(
+                'Save Notification Settings',
+                style: TextStyle(color: Colors.white),
+              ),
               style: ElevatedButton.styleFrom(
                 backgroundColor: Colors.green,
                 minimumSize: Size(double.infinity, 48),
@@ -459,6 +464,7 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
       trailing: Switch.adaptive(
         value: value,
         onChanged: onChanged,
+        // ignore: deprecated_member_use
         activeColor: Colors.green,
       ),
     );
