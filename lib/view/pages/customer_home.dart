@@ -238,8 +238,8 @@ class CustomerHome extends StatelessWidget {
               ),
               CircleAvatar(
                 radius: 18,
-                backgroundImage: NetworkImage(
-                  'https://i.pravatar.cc/150?img=9',
+                backgroundImage: AssetImage(
+                  'assets/images/profile_user.jpg',
                 ),
               ),
             ],

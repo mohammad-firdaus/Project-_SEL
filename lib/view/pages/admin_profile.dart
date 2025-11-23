@@ -24,16 +24,10 @@ class AdminProfile extends StatelessWidget {
               padding: const EdgeInsets.only(top: 20, bottom: 16),
               child: Column(
                 children: [
-                  Container(
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: Colors.green[100],
-                    ),
-                    padding: const EdgeInsets.all(16),
-                    child: Icon(
-                      Icons.shield,
-                      size: 56,
-                      color: Colors.green[700],
+                  CircleAvatar(
+                    radius: 56,
+                    backgroundImage: AssetImage(
+                      'assets/images/profile_user.jpg',
                     ),
                   ),
                   SizedBox(height: 8),
