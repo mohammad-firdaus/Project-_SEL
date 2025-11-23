@@ -221,6 +221,7 @@ class _AdminSettingsPageState extends State<AdminSettingsPage> {
       appBar: AppBar(
         backgroundColor: Colors.green,
         title: Text('Admin Settings'),
+        titleTextStyle: TextStyle(fontWeight: FontWeight.bold, fontSize: 24),
         foregroundColor: Colors.white,
         elevation: 0,
       ),
