@@ -1,10 +1,15 @@
 import 'package:flutter/material.dart';
 
 class CustomerHome extends StatelessWidget {
-  const CustomerHome({Key? key}) : super(key: key);
+  const CustomerHome({super.key});
 
-  Widget _buildFeaturedCard(String imageUrl, String title, String subtitle,
-      {bool isNewCampaign = false, bool isSponsored = false}) {
+  Widget _buildFeaturedCard(
+    String imageUrl,
+    String title,
+    String subtitle, {
+    bool isNewCampaign = false,
+    bool isSponsored = false,
+  }) {
     return Stack(
       children: [
         ClipRRect(
@@ -23,12 +28,17 @@ class CustomerHome extends StatelessWidget {
             child: Container(
               padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 2),
               decoration: BoxDecoration(
+                // ignore: deprecated_member_use
                 color: Colors.green.shade700.withOpacity(0.9),
                 borderRadius: BorderRadius.circular(12),
               ),
               child: const Text(
                 'New Campaign',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold, fontSize: 12),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 12,
+                ),
               ),
             ),
           ),
@@ -47,6 +57,7 @@ class CustomerHome extends StatelessWidget {
           right: 12,
           child: Container(
             decoration: BoxDecoration(
+              // ignore: deprecated_member_use
               color: Colors.black.withOpacity(0.5),
               borderRadius: BorderRadius.circular(10),
             ),
@@ -54,12 +65,14 @@ class CustomerHome extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style: const TextStyle(
-                      color: Colors.white,
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    )),
+                Text(
+                  title,
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
                 const SizedBox(height: 4),
                 Text(
                   subtitle,
@@ -89,7 +102,11 @@ class CustomerHome extends StatelessWidget {
               const SizedBox(width: 8),
               const Text(
                 'Beach Cleanup Day',
-                style: TextStyle(color: Colors.white, fontWeight: FontWeight.w600, fontSize: 16),
+                style: TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.w600,
+                  fontSize: 16,
+                ),
               ),
               const Spacer(),
               Container(
@@ -100,7 +117,11 @@ class CustomerHome extends StatelessWidget {
                 ),
                 child: const Text(
                   '27 spots left',
-                  style: TextStyle(color: Colors.green, fontSize: 12, fontWeight: FontWeight.w600),
+                  style: TextStyle(
+                    color: Colors.green,
+                    fontSize: 12,
+                    fontWeight: FontWeight.w600,
+                  ),
                 ),
               ),
             ],
@@ -121,7 +142,8 @@ class CustomerHome extends StatelessWidget {
             child: ElevatedButton(
               onPressed: () {},
               style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.green, backgroundColor: Colors.white,
+                foregroundColor: Colors.green,
+                backgroundColor: Colors.white,
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(20),
                 ),
@@ -154,17 +176,18 @@ class CustomerHome extends StatelessWidget {
           children: [
             Row(
               children: [
-                Text(name,
-                    style: const TextStyle(
-                      fontWeight: FontWeight.bold,
-                      fontSize: 16,
-                    )),
+                Text(
+                  name,
+                  style: const TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 16,
+                  ),
+                ),
                 const SizedBox(width: 8),
-                Text(date,
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey.shade600,
-                    )),
+                Text(
+                  date,
+                  style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                ),
                 const Spacer(),
                 Row(
                   children: List.generate(
@@ -211,17 +234,14 @@ class CustomerHome extends StatelessWidget {
           Row(
             children: [
               const Expanded(
-                child: Text(
-                  'Welcome back!',
-                  style: TextStyle(fontSize: 16),
-                ),
+                child: Text('Welcome back!', style: TextStyle(fontSize: 16)),
               ),
               CircleAvatar(
                 radius: 18,
-                backgroundImage: NetworkImage(
-                  'https://i.pravatar.cc/150?img=9',
+                backgroundImage: AssetImage(
+                  'assets/images/profile_user.jpg',
                 ),
-              )
+              ),
             ],
           ),
           const SizedBox(height: 2),
@@ -310,12 +330,9 @@ class CustomerHome extends StatelessWidget {
                 children: const [
                   Icon(Icons.star, color: Colors.green, size: 18),
                   SizedBox(width: 4),
-                  Text(
-                    '4.8/5.0',
-                    style: TextStyle(color: Colors.green),
-                  ),
+                  Text('4.8/5.0', style: TextStyle(color: Colors.green)),
                 ],
-              )
+              ),
             ],
           ),
 

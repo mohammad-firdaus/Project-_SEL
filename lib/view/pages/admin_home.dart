@@ -1,11 +1,36 @@
+import 'dart:io';
+
+import 'package:file_picker/file_picker.dart';
 import 'package:flutter/material.dart';
 import 'package:project_sel/view/pages/admin_featured_content_edit_page.dart';
 import 'package:project_sel/view/pages/admin_upcoming_event_manage_page.dart';
+import 'package:project_sel/view/pages/product_catalog_page.dart';
 
-class AdminHome extends StatelessWidget {
+class AdminHome extends StatefulWidget {
+  const AdminHome({super.key});
+
+  @override
+  State<AdminHome> createState() => _AdminHomeState();
+}
+
+class _AdminHomeState extends State<AdminHome> {
   final Color primaryGreen = Color(0xFF42B642);
 
-  AdminHome({super.key});
+  File? _selectedPdfFile;
+
+  // Method to pick PDF file
+  Future<void> _pickPdfFile() async {
+    FilePickerResult? result = await FilePicker.platform.pickFiles(
+      type: FileType.custom,
+      allowedExtensions: ['pdf'],
+    );
+
+    if (result != null && result.files.single.path != null) {
+      setState(() {
+        _selectedPdfFile = File(result.files.single.path!);
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -131,8 +156,7 @@ class AdminHome extends StatelessWidget {
                               title: 'Join the Green Revolution',
                               subtitle:
                                   'Inspire change with our new initiatives today!',
-                              imageUrl:
-                                  'https://images.unsplash.com/photo-1506744038136-46273834b3fb?fit=crop&w=800&q=60',
+                              imageUrl: 'assets/images/main_banner.jpeg',
                               greenDot: true,
                               badgeText: 'New Campaign',
                             ),
@@ -151,8 +175,7 @@ class AdminHome extends StatelessWidget {
                               title: 'Recycle More',
                               subtitle:
                                   'Learn innovative ways to reduce waste.',
-                              imageUrl:
-                                  'https://images.unsplash.com/photo-1542831371-29b0f74f9713?fit=crop&w=800&q=60',
+                              imageUrl: 'assets/images/secondary_card1.jpeg',
                               greenDot: false,
                               titleFontSize: 14,
                               subtitleFontSize: 12,
@@ -163,8 +186,7 @@ class AdminHome extends StatelessWidget {
                               title: 'Green Living Tips',
                               subtitle:
                                   'Discover daily habits for a sustainable life.',
-                              imageUrl:
-                                  'https://images.unsplash.com/photo-1518837695005-2083093ee35b?fit=crop&w=800&q=60',
+                              imageUrl: 'assets/images/secondary_card2.jpeg',
                               greenDot: false,
                               titleFontSize: 14,
                               subtitleFontSize: 12,
@@ -241,6 +263,11 @@ class AdminHome extends StatelessWidget {
 
               SizedBox(height: 25),
 
+              // Product Catalog upload card added here
+              _buildProductCatalogCard(),
+
+              SizedBox(height: 25),
+
               // Today's Summary card
               Container(
                 decoration: BoxDecoration(
@@ -299,6 +326,95 @@ class AdminHome extends StatelessWidget {
     );
   }
 
+  Widget _buildProductCatalogCard() {
+    return Card(
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+      elevation: 4,
+      child: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header row with title and Manage button
+            Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                Text(
+                  'Product Catalog',
+                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                ),
+                ElevatedButton(
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryGreen,
+                    shape: RoundedRectangleBorder(
+                      borderRadius: BorderRadius.circular(8),
+                    ),
+                  ),
+                  onPressed: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) {
+                          return ProductCatalogPage();
+                        },
+                      ),
+                    );
+                  },
+                  child: Text('Manage', style: TextStyle(color: Colors.white)),
+                ),
+              ],
+            ),
+            SizedBox(height: 20),
+
+            // Content area - icon, status text and upload button
+            Center(
+              child: Column(
+                children: [
+                  Icon(
+                    Icons.picture_as_pdf_outlined,
+                    size: 48,
+                    color: Colors.grey[400],
+                  ),
+                  SizedBox(height: 10),
+                  Text(
+                    _selectedPdfFile == null
+                        ? 'No catalog uploaded\nAdd a PDF catalog for customers to view'
+                        : 'Uploaded file:\n${_selectedPdfFile!.path.split('/').last}',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                  ),
+                  SizedBox(height: 12),
+                  ElevatedButton.icon(
+                    onPressed: _pickPdfFile,
+                    icon: Icon(Icons.upload_file, color: primaryGreen),
+                    style: ElevatedButton.styleFrom(
+                      // ignore: deprecated_member_use
+                      backgroundColor: primaryGreen.withOpacity(0.15),
+                      foregroundColor: primaryGreen,
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 10,
+                      ),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      elevation: 0,
+                    ),
+                    label: Text(
+                      'Upload Catalog',
+                      style: TextStyle(color: primaryGreen),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  // --- Your existing methods below ---
   Widget _buildSummaryCard(
     String title,
     String value,
@@ -357,7 +473,9 @@ class AdminHome extends StatelessWidget {
       decoration: BoxDecoration(
         borderRadius: BorderRadius.circular(18),
         image: DecorationImage(
-          image: NetworkImage(imageUrl),
+          image: imageUrl.startsWith('assets/')
+              ? AssetImage(imageUrl)
+              : NetworkImage(imageUrl),
           fit: BoxFit.cover,
           colorFilter: ColorFilter.mode(
             // ignore: deprecated_member_use

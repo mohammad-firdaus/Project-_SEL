@@ -1,3 +1,5 @@
+// ignore_for_file: avoid_print, unnecessary_underscores
+
 import 'package:flutter/material.dart';
 
 class ManualSalesEntryPage extends StatefulWidget {
@@ -72,9 +74,7 @@ class _ManualSalesEntryPageState extends State<ManualSalesEntryPage> {
 
   double get totalAmount {
     double total = 0;
-    selectedProducts.forEach(
-      (product, qty) => total += product.price * qty,
-    );
+    selectedProducts.forEach((product, qty) => total += product.price * qty);
     return total;
   }
 
@@ -122,7 +122,9 @@ class _ManualSalesEntryPageState extends State<ManualSalesEntryPage> {
     print('Recording sales for event: $eventName, date: $eventDate');
     print('Notes: $notes');
     selectedProducts.forEach((product, qty) {
-      print('Product: ${product.name}, Quantity: $qty, Subtotal: RM${(product.price * qty).toStringAsFixed(2)}');
+      print(
+        'Product: ${product.name}, Quantity: $qty, Subtotal: RM${(product.price * qty).toStringAsFixed(2)}',
+      );
     });
     print('Total amount: RM${totalAmount.toStringAsFixed(2)}');
 
@@ -135,10 +137,12 @@ class _ManualSalesEntryPageState extends State<ManualSalesEntryPage> {
     });
 
     // Show confirmation snackbar:
-    ScaffoldMessenger.of(context).showSnackBar(const SnackBar(
-      content: Text('Sales recorded successfully!'),
-      duration: Duration(seconds: 2),
-    ));
+    ScaffoldMessenger.of(context).showSnackBar(
+      const SnackBar(
+        content: Text('Sales recorded successfully!'),
+        duration: Duration(seconds: 2),
+      ),
+    );
   }
 
   @override
@@ -309,8 +313,10 @@ class _ManualSalesEntryPageState extends State<ManualSalesEntryPage> {
                                 product.imagePath,
                                 fit: BoxFit.contain,
                                 errorBuilder: (_, __, ___) => Center(
-                                  child: Icon(Icons.image_not_supported,
-                                      color: Colors.grey[400]),
+                                  child: Icon(
+                                    Icons.image_not_supported,
+                                    color: Colors.grey[400],
+                                  ),
                                 ),
                               ),
                             ),
@@ -366,8 +372,9 @@ class _ManualSalesEntryPageState extends State<ManualSalesEntryPage> {
                 icon: const Icon(Icons.save_alt_outlined),
                 label: const Text('Record Sales'),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor:
-                      allFieldsFilled ? primaryGreen : Colors.green[400],
+                  backgroundColor: allFieldsFilled
+                      ? primaryGreen
+                      : Colors.green[400],
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(
                     borderRadius: BorderRadius.circular(12),
@@ -399,10 +406,7 @@ class _ManualSalesEntryPageState extends State<ManualSalesEntryPage> {
           children: [
             const Text(
               'Items to Record',
-              style: TextStyle(
-                fontWeight: FontWeight.bold,
-                fontSize: 16,
-              ),
+              style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16),
             ),
             const SizedBox(height: 12),
             ...selectedProducts.entries.map((entry) {
@@ -426,8 +430,10 @@ class _ManualSalesEntryPageState extends State<ManualSalesEntryPage> {
                           product.imagePath,
                           fit: BoxFit.contain,
                           errorBuilder: (_, __, ___) => Center(
-                            child: Icon(Icons.image_not_supported,
-                                color: Colors.grey[400]),
+                            child: Icon(
+                              Icons.image_not_supported,
+                              color: Colors.grey[400],
+                            ),
                           ),
                         ),
                       ),
@@ -457,21 +463,24 @@ class _ManualSalesEntryPageState extends State<ManualSalesEntryPage> {
                           Row(
                             children: [
                               _quantityButton(
-                                  icon: Icons.remove,
-                                  onPressed: () => _decrementQuantity(product)),
+                                icon: Icons.remove,
+                                onPressed: () => _decrementQuantity(product),
+                              ),
                               Container(
                                 width: 40,
                                 alignment: Alignment.center,
                                 child: Text(
                                   '$qty',
                                   style: const TextStyle(
-                                      fontSize: 16,
-                                      fontWeight: FontWeight.bold),
+                                    fontSize: 16,
+                                    fontWeight: FontWeight.bold,
+                                  ),
                                 ),
                               ),
                               _quantityButton(
-                                  icon: Icons.add,
-                                  onPressed: () => _incrementQuantity(product)),
+                                icon: Icons.add,
+                                onPressed: () => _incrementQuantity(product),
+                              ),
                               const Spacer(),
                               GestureDetector(
                                 onTap: () => _removeProduct(product),
@@ -512,8 +521,10 @@ class _ManualSalesEntryPageState extends State<ManualSalesEntryPage> {
     );
   }
 
-  Widget _quantityButton(
-      {required IconData icon, required VoidCallback onPressed}) {
+  Widget _quantityButton({
+    required IconData icon,
+    required VoidCallback onPressed,
+  }) {
     return Container(
       width: 30,
       height: 30,
@@ -549,7 +560,9 @@ class Product {
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
-      other is Product && runtimeType == other.runtimeType && name == other.name;
+      other is Product &&
+          runtimeType == other.runtimeType &&
+          name == other.name;
 
   @override
   int get hashCode => name.hashCode;

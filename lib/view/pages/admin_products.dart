@@ -9,12 +9,21 @@ class AdminProducts extends StatefulWidget {
 }
 
 class _AdminProductsState extends State<AdminProducts> {
+  // All possible collections for the filter dropdown
+  static const List<String> allCollections = [
+    'Basic',
+    'Standard',
+    'Premium',
+    'Corporate',
+    'Urban Compost',
+  ];
+
   // Sample stock summary values - now computed dynamically
   late List<ProductStock> products = [
     ProductStock(
       name: 'Recycled Plastic Bottle',
       price: 2.50,
-      category: 'Plastic',
+      category: 'Standard',
       availableStock: 145,
       returnQty: 12,
       imagePath: 'assets/images/plastic_bottle.png',
@@ -24,11 +33,14 @@ class _AdminProductsState extends State<AdminProducts> {
       returnNote: 'Return Products for return/repair',
       phase: 'Phase 1',
       displayName: 'Display: Eco Bottle',
+      collection: 'Basic',
+      productType: 'Scrunchies',
+      variant: '',
     ),
     ProductStock(
       name: 'Glass Container Set',
       price: 15.00,
-      category: 'Glass',
+      category: '',
       availableStock: 67,
       returnQty: 8,
       imagePath: 'assets/images/glass_container.jpg',
@@ -38,11 +50,14 @@ class _AdminProductsState extends State<AdminProducts> {
       returnNote: 'Return quantity',
       phase: 'Phase 1',
       displayName: 'Display: Glass Set',
+      collection: 'Standard',
+      productType: 'Medium String Bag',
+      variant: '',
     ),
     ProductStock(
       name: 'Paper Shopping Bag',
       price: 3.50,
-      category: 'Paper',
+      category: '',
       availableStock: 289,
       returnQty: 23,
       imagePath: 'assets/images/paper_bag.jpg',
@@ -52,11 +67,14 @@ class _AdminProductsState extends State<AdminProducts> {
       returnNote: 'Return quantity',
       phase: 'Phase 1',
       displayName: 'Display: Paper Bag',
+      collection: 'Standard',
+      productType: 'Large String Bag',
+      variant: '',
     ),
     ProductStock(
       name: 'Metal Water Bottle',
       price: 18.00,
-      category: 'Metal',
+      category: '',
       availableStock: 98,
       returnQty: 10,
       imagePath: 'assets/images/metal_bottle.jpg',
@@ -66,11 +84,14 @@ class _AdminProductsState extends State<AdminProducts> {
       returnNote: 'Return quantity',
       phase: 'Phase 1',
       displayName: 'Display: Metal Bottle',
+      collection: 'Premium',
+      productType: 'Knot Bag',
+      variant: '',
     ),
     ProductStock(
       name: 'Recycled Tote Bag',
       price: 8.50,
-      category: 'Plastic',
+      category: '',
       availableStock: 156,
       returnQty: 14,
       imagePath: 'assets/images/tote_bag.jpg',
@@ -80,11 +101,14 @@ class _AdminProductsState extends State<AdminProducts> {
       returnNote: 'Return quantity',
       phase: 'Phase 1',
       displayName: 'Display: Tote Bag',
+      collection: 'Standard',
+      productType: 'Tote Bag',
+      variant: '',
     ),
     ProductStock(
       name: 'Eco Notebook',
       price: 6.00,
-      category: 'Paper',
+      category: 'Deluxe',
       availableStock: 234,
       returnQty: 11,
       imagePath: 'assets/images/eco_notebook.jpg',
@@ -94,13 +118,26 @@ class _AdminProductsState extends State<AdminProducts> {
       returnNote: 'Return quantity',
       phase: 'Phase 1',
       displayName: 'Display: Eco Notebook',
+      collection: 'Basic',
+      productType: 'Keychain Wrist Strap',
+      variant: '',
     ),
   ];
 
+  // Filtered products
+  List<ProductStock> get filteredProducts => selectedCollectionFilter == null
+      ? products
+      : products
+            .where((p) => p.collection == selectedCollectionFilter)
+            .toList();
+
+  // Unique collections for filter dropdown (using all possible collections)
+  Set<String> get uniqueCollections => allCollections.toSet();
+
   // Computed properties for summary
-  int get totalItems => products.length;
-  int get ready => products.fold(0, (sum, p) => sum + p.availableStock);
-  int get onReturn => products.fold(0, (sum, p) => sum + p.returnQty);
+  int get totalItems => filteredProducts.length;
+  int get ready => filteredProducts.fold(0, (sum, p) => sum + p.availableStock);
+  int get onReturn => filteredProducts.fold(0, (sum, p) => sum + p.returnQty);
 
   // Editing state and text controllers
   final List<bool> isEditing = [];
@@ -138,8 +175,11 @@ class _AdminProductsState extends State<AdminProducts> {
   final TextEditingController _displayNameController = TextEditingController();
   final TextEditingController _imageUrlController = TextEditingController();
   final TextEditingController _descriptionController = TextEditingController();
+  final TextEditingController _variantController = TextEditingController();
 
   String? _selectedImagePath; // You can integrate image picker here
+
+  String? selectedCollectionFilter;
 
   void _showAddProductForm() {
     _nameController.clear();
@@ -151,492 +191,1388 @@ class _AdminProductsState extends State<AdminProducts> {
     _displayNameController.clear();
     _imageUrlController.clear();
     _descriptionController.clear();
+    _variantController.clear();
     _selectedImagePath = null;
+
+    // Collections and their product types
+    const Map<String, List<String>> collectionToProductTypes = {
+      'Basic': ['Scrunchies', 'Keychain Wrist Strap', 'Luggage Bag Tag'],
+      'Standard': ['Medium String Bag', 'Large String Bag', 'Tote Bag'],
+      'Premium': ['Knot Bag', 'Batwing Outwear'],
+      'Corporate': ['Ecotote', 'Lanyard'],
+      'Urban Compost': ['Eco-kit Bokashi', 'Ecobran'],
+    };
+
+    // Product categories only for some Basic product types
+    const Map<String, List<String>> productTypeToCategories = {
+      'Scrunchies': ['Standard', 'Deluxe'],
+      'Keychain Wrist Strap': ['Standard', 'Deluxe'],
+    };
+
+    String? selectedCollection;
+    String? selectedProductType;
+    String? selectedCategory;
 
     showDialog(
       context: context,
       builder: (context) {
-        return Dialog(
-          insetPadding: const EdgeInsets.symmetric(
-            horizontal: 20,
-            vertical: 20,
-          ),
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20),
-          ),
-          child: Container(
-            constraints: const BoxConstraints(maxWidth: 600),
-            child: SingleChildScrollView(
-              child: Column(
-                mainAxisSize: MainAxisSize.min,
-                children: [
-                  // Enhanced Header with Gradient
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.all(20),
-                    decoration: BoxDecoration(
-                      gradient: LinearGradient(
-                        colors: [Colors.green.shade600, Colors.green.shade800],
-                        begin: Alignment.topLeft,
-                        end: Alignment.bottomRight,
-                      ),
-                      borderRadius: const BorderRadius.only(
-                        topLeft: Radius.circular(20),
-                        topRight: Radius.circular(20),
-                      ),
-                    ),
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                      children: [
-                        Row(
-                          children: const [
-                            Icon(
-                              Icons.add_circle_outline,
-                              color: Colors.white,
-                              size: 32,
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final isCorporate = selectedCollection == 'Corporate';
+            final productTypes = selectedCollection != null
+                ? collectionToProductTypes[selectedCollection!]!
+                : <String>[];
+            final categories =
+                (selectedProductType != null &&
+                    productTypeToCategories.containsKey(selectedProductType!))
+                ? productTypeToCategories[selectedProductType!]!
+                : <String>[];
+            final showCategory = categories.isNotEmpty;
+
+            // Update controllers availability for Corporate collection
+            if (isCorporate) {
+              _readyStockController.text = '0';
+              _returnStockController.text = '0';
+              _priceController.text = 'RM 0.00';
+            }
+
+            return Dialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 20,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Header
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.green.shade600,
+                              Colors.green.shade800,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: const [
+                                Icon(
+                                  Icons.add_circle_outline,
+                                  color: Colors.white,
+                                  size: 32,
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Add New Product',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
                             ),
-                            SizedBox(width: 12),
-                            Text(
-                              'Add New Product',
-                              style: TextStyle(
-                                fontSize: 24,
-                                fontWeight: FontWeight.bold,
+                            IconButton(
+                              icon: const Icon(
+                                Icons.close,
                                 color: Colors.white,
+                                size: 28,
                               ),
+                              onPressed: () => Navigator.of(context).pop(),
                             ),
                           ],
                         ),
-                        IconButton(
-                          icon: const Icon(
-                            Icons.close,
-                            color: Colors.white,
-                            size: 28,
-                          ),
-                          onPressed: () => Navigator.of(context).pop(),
-                        ),
-                      ],
-                    ),
-                  ),
+                      ),
 
-                  // Content Container with Sections
-                  Container(
-                    padding: const EdgeInsets.all(24),
-                    color: Colors.grey.shade50,
-                    child: Form(
-                      key: _formKey,
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          // Basic Information Section
-                          _buildSectionHeader(
-                            'Basic Information',
-                            Icons.info_outline,
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
+                      // Content
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        color: Colors.grey.shade50,
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _nameController,
-                                  decoration: InputDecoration(
-                                    labelText: 'Product Name',
-                                    hintText: 'e.g., Recycled Plastic Bottle',
-                                    prefixIcon: const Icon(Icons.inventory_2),
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  validator: (value) =>
-                                      value == null || value.isEmpty
-                                      ? 'Please enter product name'
-                                      : null,
-                                ),
+                              // Basic Information Section
+                              _buildSectionHeader(
+                                'Basic Information',
+                                Icons.info_outline,
                               ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _phaseController,
-                                  decoration: InputDecoration(
-                                    labelText: 'Phase',
-                                    hintText: 'e.g., Phase 1',
-                                    prefixIcon: const Icon(Icons.timeline),
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  validator: (value) =>
-                                      value == null || value.isEmpty
-                                      ? 'Please enter phase'
-                                      : null,
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            controller: _typeController,
-                            decoration: InputDecoration(
-                              labelText: 'Product Type',
-                              hintText: 'e.g., Plastic, Glass, Paper',
-                              prefixIcon: const Icon(Icons.category),
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            validator: (value) => value == null || value.isEmpty
-                                ? 'Please enter product type'
-                                : null,
-                          ),
-                          const SizedBox(height: 24),
-
-                          // Stock Information Section
-                          _buildSectionHeader(
-                            'Stock Information',
-                            Icons.inventory,
-                          ),
-                          const SizedBox(height: 16),
-                          Row(
-                            children: [
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _readyStockController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                    labelText: 'Ready Stock',
-                                    prefixIcon: const Icon(
-                                      Icons.check_circle_outline,
-                                      color: Colors.green,
-                                    ),
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Enter ready stock';
-                                    }
-                                    if (int.tryParse(value) == null) {
-                                      return 'Must be a number';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                              const SizedBox(width: 12),
-                              Expanded(
-                                child: TextFormField(
-                                  controller: _returnStockController,
-                                  keyboardType: TextInputType.number,
-                                  decoration: InputDecoration(
-                                    labelText: 'Return Stock',
-                                    prefixIcon: const Icon(
-                                      Icons.refresh,
-                                      color: Colors.orange,
-                                    ),
-                                    filled: true,
-                                    fillColor: Colors.white,
-                                    border: OutlineInputBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                  ),
-                                  validator: (value) {
-                                    if (value == null || value.isEmpty) {
-                                      return 'Enter return stock';
-                                    }
-                                    if (int.tryParse(value) == null) {
-                                      return 'Must be a number';
-                                    }
-                                    return null;
-                                  },
-                                ),
-                              ),
-                            ],
-                          ),
-                          const SizedBox(height: 24),
-
-                          // Pricing Section
-                          _buildSectionHeader('Pricing', Icons.attach_money),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            controller: _priceController,
-                            keyboardType: TextInputType.numberWithOptions(
-                              decimal: true,
-                            ),
-                            decoration: InputDecoration(
-                              labelText: 'Price (RM)',
-                              hintText: '0.00',
-                              prefixIcon: const Icon(Icons.currency_exchange),
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            validator: (value) {
-                              if (value == null || value.isEmpty) {
-                                return 'Please enter price';
-                              }
-                              final cleaned = value.replaceAll(
-                                RegExp(r'[^\d.]'),
-                                '',
-                              );
-                              if (double.tryParse(cleaned) == null) {
-                                return 'Enter valid price';
-                              }
-                              return null;
-                            },
-                          ),
-                          const SizedBox(height: 24),
-
-                          // Display Information Section
-                          _buildSectionHeader(
-                            'Display Information',
-                            Icons.visibility,
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            controller: _displayNameController,
-                            decoration: InputDecoration(
-                              labelText: 'Display Name (for Shop)',
-                              hintText: 'e.g., Eco Bottle',
-                              prefixIcon: const Icon(Icons.store),
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            validator: (value) => value == null || value.isEmpty
-                                ? 'Please enter display name'
-                                : null,
-                          ),
-                          const SizedBox(height: 8),
-                          Text(
-                            'This name will be shown to customers in the shop',
-                            style: TextStyle(
-                              color: Colors.grey.shade600,
-                              fontSize: 12,
-                            ),
-                          ),
-                          const SizedBox(height: 24),
-
-                          // Media Section
-                          _buildSectionHeader('Product Image', Icons.image),
-                          const SizedBox(height: 16),
-                          // Enhanced Image Upload
-                          Container(
-                            width: double.infinity,
-                            height: 120,
-                            decoration: BoxDecoration(
-                              color: Colors.white,
-                              borderRadius: BorderRadius.circular(12),
-                              border: Border.all(color: Colors.grey.shade300),
-                            ),
-                            child: InkWell(
-                              onTap: () {
-                                // Implement image picker logic here
-                              },
-                              borderRadius: BorderRadius.circular(12),
-                              child: Column(
-                                mainAxisAlignment: MainAxisAlignment.center,
+                              const SizedBox(height: 16),
+                              Row(
                                 children: [
-                                  Icon(
-                                    Icons.cloud_upload,
-                                    size: 48,
-                                    color: Colors.green.shade400,
-                                  ),
-                                  const SizedBox(height: 8),
-                                  Text(
-                                    'Upload Image',
-                                    style: TextStyle(
-                                      color: Colors.green.shade700,
-                                      fontWeight: FontWeight.bold,
-                                      fontSize: 16,
+                                  Expanded(
+                                    child: TextFormField(
+                                      controller: _nameController,
+                                      decoration: InputDecoration(
+                                        labelText: 'Product Name',
+                                        hintText:
+                                            'e.g., Recycled Plastic Bottle',
+                                        prefixIcon: const Icon(
+                                          Icons.inventory_2,
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                      ),
+                                      validator: (value) =>
+                                          (value == null || value.isEmpty)
+                                          ? 'Please enter product name'
+                                          : null,
                                     ),
                                   ),
-                                  Text(
-                                    'Click to select or drag & drop',
-                                    style: TextStyle(
-                                      color: Colors.grey.shade600,
-                                      fontSize: 12,
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: TextFormField(
+                                      controller: _phaseController,
+                                      decoration: InputDecoration(
+                                        labelText: 'Phase',
+                                        hintText: 'e.g., Phase 1',
+                                        prefixIcon: const Icon(Icons.timeline),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                      ),
+                                      validator: (value) =>
+                                          (value == null || value.isEmpty)
+                                          ? 'Please enter phase'
+                                          : null,
                                     ),
                                   ),
                                 ],
                               ),
-                            ),
-                          ),
-                          const SizedBox(height: 16),
-                          // OR Separator
-                          Row(
-                            children: [
-                              const Expanded(child: Divider()),
-                              Container(
-                                padding: const EdgeInsets.symmetric(
-                                  horizontal: 16,
-                                ),
-                                child: Text(
-                                  'OR',
-                                  style: TextStyle(
-                                    color: Colors.grey.shade600,
-                                    fontWeight: FontWeight.bold,
+                              const SizedBox(height: 16),
+
+                              // Collection Dropdown (replaces product type textfield)
+                              DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  labelText: 'Collection Type',
+                                  prefixIcon: const Icon(Icons.collections),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
                                   ),
                                 ),
+                                initialValue: selectedCollection,
+                                hint: const Text('Select Collection'),
+                                items: collectionToProductTypes.keys
+                                    .map(
+                                      (collection) => DropdownMenuItem(
+                                        value: collection,
+                                        child: Text(collection),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (val) {
+                                  setState(() {
+                                    selectedCollection = val;
+                                    selectedProductType = null;
+                                    selectedCategory = null;
+                                  });
+                                },
+                                validator: (value) =>
+                                    value == null || value.isEmpty
+                                    ? 'Please select collection'
+                                    : null,
                               ),
-                              const Expanded(child: Divider()),
-                            ],
-                          ),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            controller: _imageUrlController,
-                            decoration: InputDecoration(
-                              labelText: 'Image URL',
-                              hintText: 'Paste image URL here',
-                              prefixIcon: const Icon(Icons.link),
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            keyboardType: TextInputType.url,
-                          ),
-                          const SizedBox(height: 24),
 
-                          // Description Section
-                          _buildSectionHeader('Description', Icons.description),
-                          const SizedBox(height: 16),
-                          TextFormField(
-                            controller: _descriptionController,
-                            decoration: InputDecoration(
-                              labelText: 'Description (Optional)',
-                              hintText: 'Add product description...',
-                              prefixIcon: const Icon(Icons.text_fields),
-                              filled: true,
-                              fillColor: Colors.white,
-                              border: OutlineInputBorder(
-                                borderRadius: BorderRadius.circular(12),
-                              ),
-                            ),
-                            maxLines: 4,
-                          ),
-                          const SizedBox(height: 32),
+                              const SizedBox(height: 16),
 
-                          // Enhanced Buttons
-                          Row(
-                            children: [
-                              Expanded(
-                                child: OutlinedButton.icon(
-                                  icon: const Icon(Icons.cancel),
-                                  label: const Text('Cancel'),
-                                  style: OutlinedButton.styleFrom(
-                                    foregroundColor: Colors.grey.shade700,
-                                    side: BorderSide(
-                                      color: Colors.grey.shade400,
+                              // Product Type Dropdown
+                              DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  labelText: 'Product Type',
+                                  prefixIcon: const Icon(Icons.category),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                initialValue: selectedProductType,
+                                hint: const Text('Select Product Type'),
+                                items: productTypes
+                                    .map(
+                                      (type) => DropdownMenuItem(
+                                        value: type,
+                                        child: Text(type),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (val) {
+                                  setState(() {
+                                    selectedProductType = val;
+                                    // Reset category when product type changes
+                                    selectedCategory = null;
+                                  });
+                                },
+                                validator: (value) =>
+                                    value == null || value.isEmpty
+                                    ? 'Please select product type'
+                                    : null,
+                              ),
+
+                              const SizedBox(height: 16),
+
+                              // Product Category Dropdown - conditionally displayed
+                              if (showCategory) ...[
+                                DropdownButtonFormField<String>(
+                                  decoration: InputDecoration(
+                                    labelText: 'Product Category',
+                                    prefixIcon: const Icon(
+                                      Icons.subdirectory_arrow_right,
                                     ),
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(
                                       borderRadius: BorderRadius.circular(12),
                                     ),
-                                    elevation: 2,
                                   ),
-                                  onPressed: () => Navigator.of(context).pop(),
-                                ),
-                              ),
-                              const SizedBox(width: 16),
-                              Expanded(
-                                child: ElevatedButton.icon(
-                                  icon: const Icon(Icons.add),
-                                  label: const Text('Add Product'),
-                                  style: ElevatedButton.styleFrom(
-                                    backgroundColor: Colors.green.shade600,
-                                    foregroundColor: Colors.white,
-                                    padding: const EdgeInsets.symmetric(
-                                      vertical: 16,
-                                    ),
-                                    shape: RoundedRectangleBorder(
-                                      borderRadius: BorderRadius.circular(12),
-                                    ),
-                                    elevation: 4,
-                                    shadowColor: Colors.green.shade200,
-                                  ),
-                                  onPressed: () {
-                                    if (_formKey.currentState!.validate()) {
-                                      final price =
-                                          double.tryParse(
-                                            _priceController.text.replaceAll(
-                                              RegExp(r'[^\d.]'),
-                                              '',
-                                            ),
-                                          ) ??
-                                          0.0;
-                                      final readyStock =
-                                          int.tryParse(
-                                            _readyStockController.text,
-                                          ) ??
-                                          0;
-                                      final returnStock =
-                                          int.tryParse(
-                                            _returnStockController.text,
-                                          ) ??
-                                          0;
-
-                                      final newProduct = ProductStock(
-                                        name: _nameController.text.trim(),
-                                        phase: _phaseController.text.trim(),
-                                        category: _typeController.text.trim(),
-                                        availableStock: readyStock,
-                                        returnQty: returnStock,
-                                        price: price,
-                                        displayName: _displayNameController.text
-                                            .trim(),
-                                        imagePath:
-                                            _selectedImagePath ??
-                                            _imageUrlController.text.trim(),
-                                        readyLabel: 'Ready',
-                                        returnLabel: 'Return',
-                                        stockNote: '',
-                                        returnNote: '',
-                                      );
-                                      setState(() {
-                                        products.add(newProduct);
-                                        // Update controllers for new product
-                                        isEditing.add(false);
-                                        readyControllers.add(
-                                          TextEditingController(
-                                            text: readyStock.toString(),
-                                          ),
-                                        );
-                                        returnControllers.add(
-                                          TextEditingController(
-                                            text: returnStock.toString(),
-                                          ),
-                                        );
-                                      });
-                                      Navigator.of(context).pop();
-                                    }
+                                  initialValue: selectedCategory,
+                                  hint: const Text('Select Product Category'),
+                                  items: categories
+                                      .map(
+                                        (category) => DropdownMenuItem(
+                                          value: category,
+                                          child: Text(category),
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: (val) {
+                                    setState(() {
+                                      selectedCategory = val;
+                                    });
                                   },
+                                  validator: (value) =>
+                                      showCategory &&
+                                          (value == null || value.isEmpty)
+                                      ? 'Please select product category'
+                                      : null,
                                 ),
+                                const SizedBox(height: 16),
+                              ],
+
+                              // Stock Information Section
+                              _buildSectionHeader(
+                                'Stock Information',
+                                Icons.inventory,
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: TextFormField(
+                                      controller: _readyStockController,
+                                      keyboardType: TextInputType.number,
+                                      decoration: InputDecoration(
+                                        labelText: 'Ready Stock',
+                                        prefixIcon: const Icon(
+                                          Icons.check_circle_outline,
+                                          color: Colors.green,
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (isCorporate) return null;
+                                        if (value == null || value.isEmpty) {
+                                          return 'Enter ready stock';
+                                        }
+                                        if (int.tryParse(value) == null) {
+                                          return 'Must be a number';
+                                        }
+                                        return null;
+                                      },
+                                      enabled: !isCorporate,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: TextFormField(
+                                      controller: _returnStockController,
+                                      keyboardType: TextInputType.number,
+                                      decoration: InputDecoration(
+                                        labelText: 'Return Stock',
+                                        prefixIcon: const Icon(
+                                          Icons.refresh,
+                                          color: Colors.orange,
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (isCorporate) return null;
+                                        if (value == null || value.isEmpty) {
+                                          return 'Enter return stock';
+                                        }
+                                        if (int.tryParse(value) == null) {
+                                          return 'Must be a number';
+                                        }
+                                        return null;
+                                      },
+                                      enabled: !isCorporate,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Pricing Section
+                              _buildSectionHeader(
+                                'Pricing',
+                                Icons.attach_money,
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _priceController,
+                                keyboardType: TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: 'Price (RM)',
+                                  hintText: '0.00',
+                                  prefixIcon: const Icon(
+                                    Icons.currency_exchange,
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                validator: (value) {
+                                  if (isCorporate) return null;
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter price';
+                                  }
+                                  final cleaned = value.replaceAll(
+                                    RegExp(r'[^\d.]'),
+                                    '',
+                                  );
+                                  if (double.tryParse(cleaned) == null) {
+                                    return 'Enter valid price';
+                                  }
+                                  return null;
+                                },
+                                enabled: !isCorporate,
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Variant TextField
+                              TextFormField(
+                                controller: _variantController,
+                                decoration: InputDecoration(
+                                  labelText: 'Variant (Color/Design)',
+                                  hintText:
+                                      'e.g., Red, Blue Floral, Striped Pattern',
+                                  prefixIcon: const Icon(Icons.color_lens),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                maxLines: 1,
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Display Information Section
+                              _buildSectionHeader(
+                                'Display Information',
+                                Icons.visibility,
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _displayNameController,
+                                decoration: InputDecoration(
+                                  labelText: 'Display Name (for Shop)',
+                                  hintText: 'e.g., Eco Bottle',
+                                  prefixIcon: const Icon(Icons.store),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                validator: (value) =>
+                                    (value == null || value.isEmpty)
+                                    ? 'Please enter display name'
+                                    : null,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'This name will be shown to customers in the shop',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Media Section
+                              _buildSectionHeader('Product Image', Icons.image),
+                              const SizedBox(height: 16),
+                              Container(
+                                width: double.infinity,
+                                height: 120,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                  ),
+                                ),
+                                child: InkWell(
+                                  onTap: () {
+                                    // Implement image picker logic here
+                                  },
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.cloud_upload,
+                                        size: 48,
+                                        color: Colors.green.shade400,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Upload Image',
+                                        style: TextStyle(
+                                          color: Colors.green.shade700,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Click to select or drag & drop',
+                                        style: TextStyle(
+                                          color: Colors.grey.shade600,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  const Expanded(child: Divider()),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    child: Text(
+                                      'OR',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const Expanded(child: Divider()),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _imageUrlController,
+                                decoration: InputDecoration(
+                                  labelText: 'Image URL',
+                                  hintText: 'Paste image URL here',
+                                  prefixIcon: const Icon(Icons.link),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                keyboardType: TextInputType.url,
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Description Section
+                              _buildSectionHeader(
+                                'Description',
+                                Icons.description,
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _descriptionController,
+                                decoration: InputDecoration(
+                                  labelText: 'Description (Optional)',
+                                  hintText: 'Add product description...',
+                                  prefixIcon: const Icon(Icons.text_fields),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                maxLines: 4,
+                              ),
+                              const SizedBox(height: 32),
+
+                              // Buttons
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      icon: const Icon(Icons.cancel),
+                                      label: const Text('Cancel'),
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: Colors.grey.shade700,
+                                        side: BorderSide(
+                                          color: Colors.grey.shade400,
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 16,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        elevation: 2,
+                                      ),
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: ElevatedButton.icon(
+                                      icon: const Icon(Icons.add),
+                                      label: const Text('Add Product'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.green.shade600,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 16,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        elevation: 4,
+                                        shadowColor: Colors.green.shade200,
+                                      ),
+                                      onPressed: () {
+                                        if (_formKey.currentState!.validate()) {
+                                          final price = isCorporate
+                                              ? 0.0
+                                              : (double.tryParse(
+                                                      _priceController.text
+                                                          .replaceAll(
+                                                            RegExp(r'[^\d.]'),
+                                                            '',
+                                                          ),
+                                                    ) ??
+                                                    0.0);
+                                          final readyStock = isCorporate
+                                              ? 0
+                                              : (int.tryParse(
+                                                      _readyStockController
+                                                          .text,
+                                                    ) ??
+                                                    0);
+                                          final returnStock = isCorporate
+                                              ? 0
+                                              : (int.tryParse(
+                                                      _returnStockController
+                                                          .text,
+                                                    ) ??
+                                                    0);
+
+                                          final newProduct = ProductStock(
+                                            name: _nameController.text.trim(),
+                                            phase: _phaseController.text.trim(),
+                                            category: selectedCategory ?? '',
+
+                                            // For category field you might want a specific field depending on your ProductStock model
+                                            collection:
+                                                selectedCollection ?? '',
+                                            productType:
+                                                selectedProductType ?? '',
+                                            variant: _variantController.text
+                                                .trim(),
+                                            availableStock: readyStock,
+                                            returnQty: returnStock,
+                                            price: price,
+                                            displayName: _displayNameController
+                                                .text
+                                                .trim(),
+                                            imagePath:
+                                                _selectedImagePath ??
+                                                _imageUrlController.text.trim(),
+                                            readyLabel: 'Ready',
+                                            returnLabel: 'Return',
+                                            stockNote: '',
+                                            returnNote: '',
+                                          );
+                                          setState(() {
+                                            products.add(newProduct);
+                                            isEditing.add(false);
+                                            readyControllers.add(
+                                              TextEditingController(
+                                                text: readyStock.toString(),
+                                              ),
+                                            );
+                                            returnControllers.add(
+                                              TextEditingController(
+                                                text: returnStock.toString(),
+                                              ),
+                                            );
+                                          });
+                                          Navigator.of(context).pop();
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ],
                               ),
                             ],
                           ),
-                        ],
+                        ),
                       ),
-                    ),
+                    ],
                   ),
-                ],
+                ),
               ),
-            ),
-          ),
+            );
+          },
+        );
+      },
+    );
+  }
+
+  void _showEditProductForm(int index) {
+    final product = products[index];
+
+    // Pre-fill controllers with existing data
+    _nameController.text = product.name;
+    _phaseController.text = product.phase;
+    _readyStockController.text = product.availableStock.toString();
+    _returnStockController.text = product.returnQty.toString();
+    _priceController.text = 'RM ${product.price.toStringAsFixed(2)}';
+    _displayNameController.text = product.displayName;
+    _imageUrlController.text = product.imagePath.startsWith('assets/')
+        ? ''
+        : product.imagePath;
+    _descriptionController.clear(); // Assuming description is not stored
+    _variantController.text = product.variant;
+
+    // Collections and their product types
+    const Map<String, List<String>> collectionToProductTypes = {
+      'Basic': ['Scrunchies', 'Keychain Wrist Strap', 'Luggage Bag Tag'],
+      'Standard': ['Medium String Bag', 'Large String Bag', 'Tote Bag'],
+      'Premium': ['Knot Bag', 'Batwing Outwear'],
+      'Corporate': ['Ecotote', 'Lanyard'],
+      'Urban Compost': ['Eco-kit Bokashi', 'Ecobran'],
+    };
+
+    // Product categories only for some Basic product types
+    const Map<String, List<String>> productTypeToCategories = {
+      'Scrunchies': ['Standard', 'Deluxe'],
+      'Keychain Wrist Strap': ['Standard', 'Deluxe'],
+    };
+
+    String? selectedCollection = product.collection;
+    String? selectedProductType = product.productType;
+    String? selectedCategory = product.category.isEmpty
+        ? null
+        : product.category;
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return StatefulBuilder(
+          builder: (context, setState) {
+            final isCorporate = selectedCollection == 'Corporate';
+            final productTypes = selectedCollection != null
+                ? collectionToProductTypes[selectedCollection!]!
+                : <String>[];
+            final categories =
+                (selectedProductType != null &&
+                    productTypeToCategories.containsKey(selectedProductType!))
+                ? productTypeToCategories[selectedProductType!]!
+                : <String>[];
+            final showCategory = categories.isNotEmpty;
+
+            // Update controllers availability for Corporate collection
+            if (isCorporate) {
+              _readyStockController.text = '0';
+              _returnStockController.text = '0';
+              _priceController.text = 'RM 0.00';
+            }
+
+            return Dialog(
+              insetPadding: const EdgeInsets.symmetric(
+                horizontal: 20,
+                vertical: 20,
+              ),
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(20),
+              ),
+              child: Container(
+                constraints: const BoxConstraints(maxWidth: 600),
+                child: SingleChildScrollView(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      // Header
+                      Container(
+                        width: double.infinity,
+                        padding: const EdgeInsets.all(20),
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            colors: [
+                              Colors.blue.shade600,
+                              Colors.blue.shade800,
+                            ],
+                            begin: Alignment.topLeft,
+                            end: Alignment.bottomRight,
+                          ),
+                          borderRadius: const BorderRadius.only(
+                            topLeft: Radius.circular(20),
+                            topRight: Radius.circular(20),
+                          ),
+                        ),
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                          children: [
+                            Row(
+                              children: const [
+                                Icon(Icons.edit, color: Colors.white, size: 32),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Edit Product',
+                                  style: TextStyle(
+                                    fontSize: 24,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                              ],
+                            ),
+                            IconButton(
+                              icon: const Icon(
+                                Icons.close,
+                                color: Colors.white,
+                                size: 28,
+                              ),
+                              onPressed: () => Navigator.of(context).pop(),
+                            ),
+                          ],
+                        ),
+                      ),
+
+                      // Content
+                      Container(
+                        padding: const EdgeInsets.all(24),
+                        color: Colors.grey.shade50,
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              // Basic Information Section
+                              _buildSectionHeader(
+                                'Basic Information',
+                                Icons.info_outline,
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: TextFormField(
+                                      controller: _nameController,
+                                      decoration: InputDecoration(
+                                        labelText: 'Product Name',
+                                        hintText:
+                                            'e.g., Recycled Plastic Bottle',
+                                        prefixIcon: const Icon(
+                                          Icons.inventory_2,
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                      ),
+                                      validator: (value) =>
+                                          (value == null || value.isEmpty)
+                                          ? 'Please enter product name'
+                                          : null,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: TextFormField(
+                                      controller: _phaseController,
+                                      decoration: InputDecoration(
+                                        labelText: 'Phase',
+                                        hintText: 'e.g., Phase 1',
+                                        prefixIcon: const Icon(Icons.timeline),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                      ),
+                                      validator: (value) =>
+                                          (value == null || value.isEmpty)
+                                          ? 'Please enter phase'
+                                          : null,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+
+                              // Collection Dropdown
+                              DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  labelText: 'Collection Type',
+                                  prefixIcon: const Icon(Icons.collections),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                initialValue: selectedCollection,
+                                hint: const Text('Select Collection'),
+                                items: collectionToProductTypes.keys
+                                    .map(
+                                      (collection) => DropdownMenuItem(
+                                        value: collection,
+                                        child: Text(collection),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (val) {
+                                  setState(() {
+                                    selectedCollection = val;
+                                    selectedProductType = null;
+                                    selectedCategory = null;
+                                  });
+                                },
+                                validator: (value) =>
+                                    value == null || value.isEmpty
+                                    ? 'Please select collection'
+                                    : null,
+                              ),
+
+                              const SizedBox(height: 16),
+
+                              // Product Type Dropdown
+                              DropdownButtonFormField<String>(
+                                decoration: InputDecoration(
+                                  labelText: 'Product Type',
+                                  prefixIcon: const Icon(Icons.category),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                initialValue: selectedProductType,
+                                hint: const Text('Select Product Type'),
+                                items: productTypes
+                                    .map(
+                                      (type) => DropdownMenuItem(
+                                        value: type,
+                                        child: Text(type),
+                                      ),
+                                    )
+                                    .toList(),
+                                onChanged: (val) {
+                                  setState(() {
+                                    selectedProductType = val;
+                                    selectedCategory = null;
+                                  });
+                                },
+                                validator: (value) =>
+                                    value == null || value.isEmpty
+                                    ? 'Please select product type'
+                                    : null,
+                              ),
+
+                              const SizedBox(height: 16),
+
+                              // Product Category Dropdown - conditionally displayed
+                              if (showCategory) ...[
+                                DropdownButtonFormField<String>(
+                                  decoration: InputDecoration(
+                                    labelText: 'Product Category',
+                                    prefixIcon: const Icon(
+                                      Icons.subdirectory_arrow_right,
+                                    ),
+                                    filled: true,
+                                    fillColor: Colors.white,
+                                    border: OutlineInputBorder(
+                                      borderRadius: BorderRadius.circular(12),
+                                    ),
+                                  ),
+                                  initialValue: selectedCategory,
+                                  hint: const Text('Select Product Category'),
+                                  items: categories
+                                      .map(
+                                        (category) => DropdownMenuItem(
+                                          value: category,
+                                          child: Text(category),
+                                        ),
+                                      )
+                                      .toList(),
+                                  onChanged: (val) {
+                                    setState(() {
+                                      selectedCategory = val;
+                                    });
+                                  },
+                                  validator: (value) =>
+                                      showCategory &&
+                                          (value == null || value.isEmpty)
+                                      ? 'Please select product category'
+                                      : null,
+                                ),
+                                const SizedBox(height: 16),
+                              ],
+
+                              // Stock Information Section
+                              _buildSectionHeader(
+                                'Stock Information',
+                                Icons.inventory,
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: TextFormField(
+                                      controller: _readyStockController,
+                                      keyboardType: TextInputType.number,
+                                      decoration: InputDecoration(
+                                        labelText: 'Ready Stock',
+                                        prefixIcon: const Icon(
+                                          Icons.check_circle_outline,
+                                          color: Colors.green,
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (isCorporate) return null;
+                                        if (value == null || value.isEmpty) {
+                                          return 'Enter ready stock';
+                                        }
+                                        if (int.tryParse(value) == null) {
+                                          return 'Must be a number';
+                                        }
+                                        return null;
+                                      },
+                                      enabled: !isCorporate,
+                                    ),
+                                  ),
+                                  const SizedBox(width: 12),
+                                  Expanded(
+                                    child: TextFormField(
+                                      controller: _returnStockController,
+                                      keyboardType: TextInputType.number,
+                                      decoration: InputDecoration(
+                                        labelText: 'Return Stock',
+                                        prefixIcon: const Icon(
+                                          Icons.refresh,
+                                          color: Colors.orange,
+                                        ),
+                                        filled: true,
+                                        fillColor: Colors.white,
+                                        border: OutlineInputBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                      ),
+                                      validator: (value) {
+                                        if (isCorporate) return null;
+                                        if (value == null || value.isEmpty) {
+                                          return 'Enter return stock';
+                                        }
+                                        if (int.tryParse(value) == null) {
+                                          return 'Must be a number';
+                                        }
+                                        return null;
+                                      },
+                                      enabled: !isCorporate,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Pricing Section
+                              _buildSectionHeader(
+                                'Pricing',
+                                Icons.attach_money,
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _priceController,
+                                keyboardType: TextInputType.numberWithOptions(
+                                  decimal: true,
+                                ),
+                                decoration: InputDecoration(
+                                  labelText: 'Price (RM)',
+                                  hintText: '0.00',
+                                  prefixIcon: const Icon(
+                                    Icons.currency_exchange,
+                                  ),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                validator: (value) {
+                                  if (isCorporate) return null;
+                                  if (value == null || value.isEmpty) {
+                                    return 'Please enter price';
+                                  }
+                                  final cleaned = value.replaceAll(
+                                    RegExp(r'[^\d.]'),
+                                    '',
+                                  );
+                                  if (double.tryParse(cleaned) == null) {
+                                    return 'Enter valid price';
+                                  }
+                                  return null;
+                                },
+                                enabled: !isCorporate,
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Variant TextField
+                              TextFormField(
+                                controller: _variantController,
+                                decoration: InputDecoration(
+                                  labelText: 'Variant (Color/Design)',
+                                  hintText:
+                                      'e.g., Red, Blue Floral, Striped Pattern',
+                                  prefixIcon: const Icon(Icons.color_lens),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                maxLines: 1,
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Display Information Section
+                              _buildSectionHeader(
+                                'Display Information',
+                                Icons.visibility,
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _displayNameController,
+                                decoration: InputDecoration(
+                                  labelText: 'Display Name (for Shop)',
+                                  hintText: 'e.g., Eco Bottle',
+                                  prefixIcon: const Icon(Icons.store),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                validator: (value) =>
+                                    (value == null || value.isEmpty)
+                                    ? 'Please enter display name'
+                                    : null,
+                              ),
+                              const SizedBox(height: 8),
+                              Text(
+                                'This name will be shown to customers in the shop',
+                                style: TextStyle(
+                                  color: Colors.grey.shade600,
+                                  fontSize: 12,
+                                ),
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Media Section
+                              _buildSectionHeader('Product Image', Icons.image),
+                              const SizedBox(height: 16),
+                              Container(
+                                width: double.infinity,
+                                height: 120,
+                                decoration: BoxDecoration(
+                                  color: Colors.white,
+                                  borderRadius: BorderRadius.circular(12),
+                                  border: Border.all(
+                                    color: Colors.grey.shade300,
+                                  ),
+                                ),
+                                child: InkWell(
+                                  onTap: () {
+                                    // Implement image picker logic here
+                                  },
+                                  borderRadius: BorderRadius.circular(12),
+                                  child: Column(
+                                    mainAxisAlignment: MainAxisAlignment.center,
+                                    children: [
+                                      Icon(
+                                        Icons.cloud_upload,
+                                        size: 48,
+                                        color: Colors.blue.shade400,
+                                      ),
+                                      const SizedBox(height: 8),
+                                      Text(
+                                        'Upload Image',
+                                        style: TextStyle(
+                                          color: Colors.blue.shade700,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      Text(
+                                        'Click to select or drag & drop',
+                                        style: TextStyle(
+                                          color: Colors.grey.shade600,
+                                          fontSize: 12,
+                                        ),
+                                      ),
+                                    ],
+                                  ),
+                                ),
+                              ),
+                              const SizedBox(height: 16),
+                              Row(
+                                children: [
+                                  const Expanded(child: Divider()),
+                                  Container(
+                                    padding: const EdgeInsets.symmetric(
+                                      horizontal: 16,
+                                    ),
+                                    child: Text(
+                                      'OR',
+                                      style: TextStyle(
+                                        color: Colors.grey.shade600,
+                                        fontWeight: FontWeight.bold,
+                                      ),
+                                    ),
+                                  ),
+                                  const Expanded(child: Divider()),
+                                ],
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _imageUrlController,
+                                decoration: InputDecoration(
+                                  labelText: 'Image URL',
+                                  hintText: 'Paste image URL here',
+                                  prefixIcon: const Icon(Icons.link),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                keyboardType: TextInputType.url,
+                              ),
+                              const SizedBox(height: 24),
+
+                              // Description Section
+                              _buildSectionHeader(
+                                'Description',
+                                Icons.description,
+                              ),
+                              const SizedBox(height: 16),
+                              TextFormField(
+                                controller: _descriptionController,
+                                decoration: InputDecoration(
+                                  labelText: 'Description (Optional)',
+                                  hintText: 'Add product description...',
+                                  prefixIcon: const Icon(Icons.text_fields),
+                                  filled: true,
+                                  fillColor: Colors.white,
+                                  border: OutlineInputBorder(
+                                    borderRadius: BorderRadius.circular(12),
+                                  ),
+                                ),
+                                maxLines: 4,
+                              ),
+                              const SizedBox(height: 32),
+
+                              // Buttons
+                              Row(
+                                children: [
+                                  Expanded(
+                                    child: OutlinedButton.icon(
+                                      icon: const Icon(Icons.cancel),
+                                      label: const Text('Cancel'),
+                                      style: OutlinedButton.styleFrom(
+                                        foregroundColor: Colors.grey.shade700,
+                                        side: BorderSide(
+                                          color: Colors.grey.shade400,
+                                        ),
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 16,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        elevation: 2,
+                                      ),
+                                      onPressed: () =>
+                                          Navigator.of(context).pop(),
+                                    ),
+                                  ),
+                                  const SizedBox(width: 16),
+                                  Expanded(
+                                    child: ElevatedButton.icon(
+                                      icon: const Icon(Icons.save),
+                                      label: const Text('Update Product'),
+                                      style: ElevatedButton.styleFrom(
+                                        backgroundColor: Colors.blue.shade600,
+                                        foregroundColor: Colors.white,
+                                        padding: const EdgeInsets.symmetric(
+                                          vertical: 16,
+                                        ),
+                                        shape: RoundedRectangleBorder(
+                                          borderRadius: BorderRadius.circular(
+                                            12,
+                                          ),
+                                        ),
+                                        elevation: 4,
+                                        shadowColor: Colors.blue.shade200,
+                                      ),
+                                      onPressed: () {
+                                        if (_formKey.currentState!.validate()) {
+                                          final price = isCorporate
+                                              ? 0.0
+                                              : (double.tryParse(
+                                                      _priceController.text
+                                                          .replaceAll(
+                                                            RegExp(r'[^\d.]'),
+                                                            '',
+                                                          ),
+                                                    ) ??
+                                                    0.0);
+                                          final readyStock = isCorporate
+                                              ? 0
+                                              : (int.tryParse(
+                                                      _readyStockController
+                                                          .text,
+                                                    ) ??
+                                                    0);
+                                          final returnStock = isCorporate
+                                              ? 0
+                                              : (int.tryParse(
+                                                      _returnStockController
+                                                          .text,
+                                                    ) ??
+                                                    0);
+
+                                          final updatedProduct = ProductStock(
+                                            name: _nameController.text.trim(),
+                                            phase: _phaseController.text.trim(),
+                                            category: selectedCategory ?? '',
+                                            collection:
+                                                selectedCollection ?? '',
+                                            productType:
+                                                selectedProductType ?? '',
+                                            variant: _variantController.text
+                                                .trim(),
+                                            availableStock: readyStock,
+                                            returnQty: returnStock,
+                                            price: price,
+                                            displayName: _displayNameController
+                                                .text
+                                                .trim(),
+                                            imagePath:
+                                                _selectedImagePath ??
+                                                _imageUrlController.text.trim(),
+                                            readyLabel: 'Ready',
+                                            returnLabel: 'Return',
+                                            stockNote: '',
+                                            returnNote: '',
+                                          );
+
+                                          setState(() {
+                                            products[index] = updatedProduct;
+                                            // Update controllers for stock editing
+                                            readyControllers[index].text =
+                                                readyStock.toString();
+                                            returnControllers[index].text =
+                                                returnStock.toString();
+                                          });
+                                          Navigator.of(context).pop();
+                                        }
+                                      },
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+            );
+          },
         );
       },
     );
@@ -685,6 +1621,15 @@ class _AdminProductsState extends State<AdminProducts> {
         returnControllers[index].text = products[index].returnQty.toString();
       }
       isEditing[index] = !isEditing[index];
+    });
+  }
+
+  void _deleteProduct(int index) {
+    setState(() {
+      products.removeAt(index);
+      isEditing.removeAt(index);
+      readyControllers.removeAt(index);
+      returnControllers.removeAt(index);
     });
   }
 
@@ -793,10 +1738,64 @@ class _AdminProductsState extends State<AdminProducts> {
 
         const SizedBox(height: 12),
 
+        // Filter row
+        Padding(
+          padding: const EdgeInsets.symmetric(horizontal: 16),
+          child: Container(
+            padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(12),
+              boxShadow: [
+                // ignore: deprecated_member_use
+                BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 4),
+              ],
+            ),
+            child: Row(
+              children: [
+                const Text(
+                  'Filter by Collection:',
+                  style: TextStyle(fontSize: 14, fontWeight: FontWeight.w500),
+                ),
+                const SizedBox(width: 12),
+                Expanded(
+                  child: DropdownButton<String>(
+                    value: selectedCollectionFilter,
+                    hint: const Text('All Collections'),
+                    isExpanded: true,
+                    underline: const SizedBox(),
+                    menuMaxHeight: 200,
+                    items: [
+                      const DropdownMenuItem<String>(
+                        value: null,
+                        child: Text('All Collections'),
+                      ),
+                      ...uniqueCollections.map(
+                        (collection) => DropdownMenuItem<String>(
+                          value: collection,
+                          child: Text(collection),
+                        ),
+                      ),
+                    ],
+                    onChanged: (value) {
+                      setState(() {
+                        selectedCollectionFilter = value;
+                      });
+                    },
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+
+        const SizedBox(height: 12),
+
         Expanded(
           child: ListView.separated(
             padding: const EdgeInsets.symmetric(horizontal: 16),
             itemCount: products.length + 1, // +1 for stock labels
+            // ignore: unnecessary_underscores
             separatorBuilder: (_, __) => const SizedBox(height: 16),
             itemBuilder: (context, index) {
               if (index == 0) {
@@ -907,32 +1906,37 @@ class _AdminProductsState extends State<AdminProducts> {
     final returnController = returnControllers[index];
 
     return Card(
-      elevation: 1.5,
-      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      elevation: 3,
+      shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
       child: Padding(
-        padding: const EdgeInsets.symmetric(vertical: 10, horizontal: 16),
+        padding: const EdgeInsets.all(16),
         child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
           children: [
+            // Header with image and basic info
             Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Container(
-                  width: 65,
-                  height: 65,
+                  width: 80,
+                  height: 80,
                   decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(12),
                     color: Colors.grey.shade100,
+                    border: Border.all(color: Colors.grey.shade300),
                   ),
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(12),
                     child: Image.asset(
                       p.imagePath,
                       fit: BoxFit.cover,
+                      // ignore: unnecessary_underscores
                       errorBuilder: (_, __, ___) =>
                           const Icon(Icons.image_not_supported, size: 40),
                     ),
                   ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -940,8 +1944,8 @@ class _AdminProductsState extends State<AdminProducts> {
                       Text(
                         p.name,
                         style: const TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 16,
+                          fontWeight: FontWeight.bold,
+                          fontSize: 18,
                         ),
                         maxLines: 2,
                         overflow: TextOverflow.ellipsis,
@@ -952,32 +1956,99 @@ class _AdminProductsState extends State<AdminProducts> {
                         style: TextStyle(
                           color: Colors.green.shade700,
                           fontWeight: FontWeight.bold,
+                          fontSize: 16,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        p.phase,
-                        style: TextStyle(color: Colors.grey[600], fontSize: 12),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Display: ${p.displayName}',
+                        p.displayName,
                         style: TextStyle(
-                          color: Colors.green.shade700,
-                          fontSize: 12,
+                          color: Colors.blue.shade700,
+                          fontSize: 14,
                           fontWeight: FontWeight.w500,
                         ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
                       ),
                     ],
                   ),
                 ),
+                // Edit and Delete buttons
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    IconButton(
+                      icon: const Icon(Icons.edit, color: Colors.blue),
+                      onPressed: () => _showEditProductForm(index),
+                      tooltip: 'Edit Product',
+                    ),
+                    IconButton(
+                      icon: const Icon(Icons.delete, color: Colors.red),
+                      onPressed: () => _deleteProduct(index),
+                      tooltip: 'Delete Product',
+                    ),
+                  ],
+                ),
               ],
+            ),
+            const SizedBox(height: 12),
+            // Details grid
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.grey.shade50,
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Column(
+                children: [
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _detailItem('Phase', p.phase, Icons.timeline),
+                      ),
+                      Expanded(
+                        child: _detailItem(
+                          'Category',
+                          p.category,
+                          Icons.category,
+                        ),
+                      ),
+                    ],
+                  ),
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _detailItem(
+                          'Collection',
+                          p.collection,
+                          Icons.collections,
+                        ),
+                      ),
+                      Expanded(
+                        child: _detailItem(
+                          'Type',
+                          p.productType,
+                          Icons.inventory_2,
+                        ),
+                      ),
+                    ],
+                  ),
+                  if (p.variant.isNotEmpty) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _detailItem(
+                            'Variant',
+                            p.variant,
+                            Icons.color_lens,
+                          ),
+                        ),
+                        const Expanded(child: SizedBox()),
+                      ],
+                    ),
+                  ],
+                ],
+              ),
             ),
             const SizedBox(height: 12),
             editing
@@ -986,6 +2057,31 @@ class _AdminProductsState extends State<AdminProducts> {
           ],
         ),
       ),
+    );
+  }
+
+  Widget _detailItem(String label, String value, IconData icon) {
+    return Row(
+      children: [
+        Icon(icon, size: 16, color: Colors.grey.shade600),
+        const SizedBox(width: 4),
+        Text(
+          '$label: ',
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey.shade600,
+            fontWeight: FontWeight.w500,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: const TextStyle(fontSize: 12, fontWeight: FontWeight.w600),
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+          ),
+        ),
+      ],
     );
   }
 
@@ -1152,6 +2248,9 @@ class ProductStock {
   final String returnNote;
   final String phase;
   final String displayName;
+  final String collection;
+  final String productType;
+  final String variant;
 
   ProductStock({
     required this.name,
@@ -1166,5 +2265,8 @@ class ProductStock {
     this.returnNote = '',
     required this.phase,
     required this.displayName,
+    required this.collection,
+    required this.productType,
+    this.variant = '',
   });
 }
