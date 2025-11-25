@@ -781,10 +781,10 @@ class _AdminOrdersState extends State<AdminOrders> {
                                 _selectedImageFiles[orderNumber] = null;
                               });
                             },
-                            child: const Text('Cancel'),
                             style: OutlinedButton.styleFrom(
                               padding: const EdgeInsets.symmetric(vertical: 14),
                             ),
+                            child: const Text('Cancel'),
                           ),
                         ),
                         const SizedBox(width: 12),
@@ -902,7 +902,7 @@ class _AdminOrdersState extends State<AdminOrders> {
               onSelected: (_) => onSelected(option),
             ),
           );
-        }).toList(),
+        }),
       ],
     );
   }
@@ -911,8 +911,7 @@ class _AdminOrdersState extends State<AdminOrders> {
 class CorporateOrderRequestCard extends StatelessWidget {
   final int pendingRequests;
 
-  const CorporateOrderRequestCard({Key? key, required this.pendingRequests})
-    : super(key: key);
+  const CorporateOrderRequestCard({super.key, required this.pendingRequests});
 
   @override
   Widget build(BuildContext context) {
