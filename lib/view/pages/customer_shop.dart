@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:project_sel/data/notifier.dart';
 import 'package:project_sel/view/customer_widget_tree.dart';
 
 // Cart item model to manage cart data
@@ -28,16 +27,13 @@ class CartService {
   List<CartItem> get items => _items;
 
   void addItem(CartItem item) {
-    // Check if item already exists in cart
     final existingIndex = _items.indexWhere(
       (cartItem) => cartItem.name == item.name && cartItem.type == item.type,
     );
 
     if (existingIndex != -1) {
-      // Increase quantity if item exists
       _items[existingIndex].quantity += item.quantity;
     } else {
-      // Add new item
       _items.add(item);
     }
   }
@@ -88,8 +84,10 @@ class CustomerShop extends StatefulWidget {
   _CustomerShopState createState() => _CustomerShopState();
 }
 
-class _CustomerShopState extends State<CustomerShop> {
+class _CustomerShopState extends State<CustomerShop>
+    with SingleTickerProviderStateMixin {
   final Color primaryGreen = const Color(0xFF42B642);
+  final Color accentGreen = const Color(0xFF4DB6AC);
   String _selectedFilter = 'All Collection';
   String _selectedCategory = 'Basic';
   String _selectedProductType = 'Scrunchies';
@@ -1581,18 +1579,6 @@ class OrderConfirmationPage extends StatelessWidget {
               SizedBox(height: 32),
               ElevatedButton(
                 onPressed: () {
-                  // print('Continue Shopping button pressed'); // Debug log
-                  // if (onContinueShopping != null) {
-                  //   // Use the custom callback if provided
-                  //   onContinueShopping!();
-                  // } else {
-                  //   // Navigate back to shop page by:
-                  //   // 1. Pop all routes to return to CustomerWidgetTree
-                  //   Navigator.of(context).popUntil((route) => route.isFirst);
-                  //   // 2. Set the selected page to Shop (index 1)
-                  //   print('Setting selectedPageNotifier to 1'); // Debug log
-                  //   selectedPageNotifier.value = 1;
-                  // }
                   Navigator.pushReplacement(
                     context,
                     MaterialPageRoute(
