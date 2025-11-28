@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:project_sel/data/notifier.dart';
 import 'package:project_sel/view/pages/welcome_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 void main() {
   runApp(const MyApp());
