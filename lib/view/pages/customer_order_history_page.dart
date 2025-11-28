@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'customer_order_details_page.dart';
+import 'models.dart';
 
 class CustomerOrderHistoryPage extends StatefulWidget {
   const CustomerOrderHistoryPage({super.key});
@@ -128,38 +130,6 @@ class _CustomerOrderHistoryPageState extends State<CustomerOrderHistoryPage> {
   }
 }
 
-enum OrderStatus { preparing, shipped, received }
-
-class Order {
-  final String orderId;
-  final DateTime dateTime;
-  OrderStatus status;
-  final List<OrderItem> items;
-  int? rating;
-  String? feedback;
-
-  Order({
-    required this.orderId,
-    required this.dateTime,
-    required this.status,
-    required this.items,
-    this.rating,
-    this.feedback,
-  });
-
-  int get totalAmount =>
-      items.fold(0, (total, item) => total + (item.price * item.qty));
-
-  int get totalItems => items.fold(0, (total, item) => total + item.qty);
-}
-
-class OrderItem {
-  final String name;
-  final int qty;
-  final int price; // Assume price in RM
-
-  OrderItem({required this.name, required this.qty, required this.price});
-}
 
 class OrderCard extends StatelessWidget {
   final Order order;
@@ -286,17 +256,26 @@ class OrderCard extends StatelessWidget {
               child: order.status == OrderStatus.shipped
                   ? ElevatedButton(
                       onPressed: () {
-                        // Call parent's callback to mark as received - will implement later
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(
-                            content: Text('Mark as Received pressed'),
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                CustomerOrderDetailsPage(order: order),
                           ),
                         );
                       },
                       child: const Text('Mark as Received'),
                     )
                   : TextButton.icon(
-                      onPressed: null, // Disabled until implemented
+                      onPressed: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) =>
+                                CustomerOrderDetailsPage(order: order),
+                          ),
+                        );
+                      },
                       icon: const Icon(Icons.arrow_forward_ios, size: 16),
                       label: const Text(
                         'View Details',

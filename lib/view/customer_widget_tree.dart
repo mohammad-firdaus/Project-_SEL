@@ -22,24 +22,18 @@ class CustomerWidgetTree extends StatelessWidget {
     selectedPageNotifier.value = 0;
     return Scaffold(
       appBar: AppBar(
-        leading: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Image.asset('assets/images/logo_nobg.PNG'),
+        title: Text('Waste To Wealth'),
+        titleTextStyle: TextStyle(
+          fontSize: 20,
+          fontWeight: FontWeight.bold,
+          color: Colors.white,
         ),
-        title: Text('WasteToWealth'),
         centerTitle: false,
         backgroundColor: Color(0xFF42B642),
         actions: [
-          IconButton(
-            onPressed: () {
-              isDarkmode.value = !isDarkmode.value;
-            },
-            icon: ValueListenableBuilder(
-              valueListenable: isDarkmode,
-              builder: (context, darkMode, child) {
-                return Icon(darkMode ? Icons.dark_mode : Icons.light_mode);
-              },
-            ),
+          Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Image.asset('assets/images/logo_nobg.PNG'),
           ),
         ],
       ),
@@ -48,13 +42,6 @@ class CustomerWidgetTree extends StatelessWidget {
         builder: (context, selectedPage, child) {
           return pages.elementAt(selectedPage);
         },
-      ),
-      floatingActionButton: FloatingActionButton(
-        onPressed: () {
-          selectedPageNotifier.value =
-              (selectedPageNotifier.value + 1) % pages.length;
-        },
-        child: Icon(Icons.navigate_next),
       ),
       bottomNavigationBar: CustomerNavigationbarWidget(),
     );
