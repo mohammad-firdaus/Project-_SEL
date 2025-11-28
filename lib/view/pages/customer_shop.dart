@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:project_sel/data/notifier.dart';
+import 'package:project_sel/view/customer_widget_tree.dart';
 
 // Cart item model to manage cart data
 class CartItem {
@@ -22,14 +24,15 @@ class CartService {
   CartService._internal();
 
   final List<CartItem> _items = [];
-  
+
   List<CartItem> get items => _items;
-  
+
   void addItem(CartItem item) {
     // Check if item already exists in cart
-    final existingIndex = _items.indexWhere((cartItem) => 
-        cartItem.name == item.name && cartItem.type == item.type);
-    
+    final existingIndex = _items.indexWhere(
+      (cartItem) => cartItem.name == item.name && cartItem.type == item.type,
+    );
+
     if (existingIndex != -1) {
       // Increase quantity if item exists
       _items[existingIndex].quantity += item.quantity;
@@ -38,24 +41,25 @@ class CartService {
       _items.add(item);
     }
   }
-  
+
   void removeItem(int index) {
     if (index >= 0 && index < _items.length) {
       _items.removeAt(index);
     }
   }
-  
+
   void updateQuantity(int index, int newQuantity) {
     if (index >= 0 && index < _items.length && newQuantity > 0) {
       _items[index].quantity = newQuantity;
     }
   }
-  
+
   void clearCart() {
     _items.clear();
   }
-  
-  double get subtotal => _items.fold(0, (sum, item) => sum + (item.price * item.quantity));
+
+  double get subtotal =>
+      _items.fold(0, (sum, item) => sum + (item.price * item.quantity));
   int get totalItems => _items.fold(0, (sum, item) => sum + item.quantity);
 }
 
@@ -89,7 +93,7 @@ class _CustomerShopState extends State<CustomerShop> {
   String _selectedFilter = 'All Collection';
   String _selectedCategory = 'Basic';
   String _selectedProductType = 'Scrunchies';
-  
+
   final List<String> _filters = [
     'All Collection',
     'Hot Selling',
@@ -97,7 +101,7 @@ class _CustomerShopState extends State<CustomerShop> {
     'Standard',
     'Premium',
     'Corporate',
-    'Urban Compost'
+    'Urban Compost',
   ];
 
   final Map<String, List<String>> _productTypes = {
@@ -209,7 +213,7 @@ class _CustomerShopState extends State<CustomerShop> {
               ],
             ),
           ),
-          
+
           // Advertisement Box
           Container(
             width: double.infinity,
@@ -249,10 +253,7 @@ class _CustomerShopState extends State<CustomerShop> {
                       SizedBox(height: 4),
                       Text(
                         'Get 20% off on all\npremium products',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 14,
-                        ),
+                        style: TextStyle(color: Colors.white, fontSize: 14),
                       ),
                     ],
                   ),
@@ -269,7 +270,10 @@ class _CustomerShopState extends State<CustomerShop> {
                       });
                     },
                     child: Container(
-                      padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                      padding: EdgeInsets.symmetric(
+                        horizontal: 16,
+                        vertical: 8,
+                      ),
                       decoration: BoxDecoration(
                         color: Colors.white,
                         borderRadius: BorderRadius.circular(20),
@@ -287,7 +291,7 @@ class _CustomerShopState extends State<CustomerShop> {
               ],
             ),
           ),
-          
+
           // Filter Chips with better scrollable design
           Container(
             height: 60,
@@ -311,7 +315,7 @@ class _CustomerShopState extends State<CustomerShop> {
                       final filter = entry.value;
                       final isFirst = entry.key == 0;
                       final isLast = entry.key == _filters.length - 1;
-                      
+
                       return Container(
                         margin: EdgeInsets.only(
                           left: isFirst ? 0 : 4,
@@ -323,29 +327,37 @@ class _CustomerShopState extends State<CustomerShop> {
                           onSelected: (bool selected) {
                             setState(() {
                               _selectedFilter = filter;
-                              if (filter != 'All Collection' && filter != 'Hot Selling') {
+                              if (filter != 'All Collection' &&
+                                  filter != 'Hot Selling') {
                                 _selectedCategory = filter;
                                 // Set first product type as default when category changes
-                                if (_productTypes[_selectedCategory] != null && 
-                                    _productTypes[_selectedCategory]!.isNotEmpty) {
-                                  _selectedProductType = _productTypes[_selectedCategory]!.first;
+                                if (_productTypes[_selectedCategory] != null &&
+                                    _productTypes[_selectedCategory]!
+                                        .isNotEmpty) {
+                                  _selectedProductType =
+                                      _productTypes[_selectedCategory]!.first;
                                 }
                               } else {
                                 // For All Collection or Hot Selling, set first available product type
-                                _selectedProductType = _productTypes['Basic']!.first;
+                                _selectedProductType =
+                                    _productTypes['Basic']!.first;
                               }
                             });
                           },
                           selectedColor: primaryGreen,
                           checkmarkColor: Colors.white,
                           labelStyle: TextStyle(
-                            color: _selectedFilter == filter ? Colors.white : Colors.grey[700],
+                            color: _selectedFilter == filter
+                                ? Colors.white
+                                : Colors.grey[700],
                             fontWeight: FontWeight.w500,
                           ),
                           backgroundColor: Colors.grey[200],
                           shape: StadiumBorder(
                             side: BorderSide(
-                              color: _selectedFilter == filter ? primaryGreen : Colors.grey[300]!,
+                              color: _selectedFilter == filter
+                                  ? primaryGreen
+                                  : Colors.grey[300]!,
                               width: 1,
                             ),
                           ),
@@ -357,7 +369,7 @@ class _CustomerShopState extends State<CustomerShop> {
               ],
             ),
           ),
-          
+
           // Products Section
           Row(
             crossAxisAlignment: CrossAxisAlignment.start,
@@ -377,25 +389,23 @@ class _CustomerShopState extends State<CustomerShop> {
                   ),
                 ),
               ),
-              
+
               SizedBox(width: 16),
-              
+
               // Right Expanded - Product Cards
-              Expanded(
-                flex: 2,
-                child: _buildProductCards(),
-              ),
+              Expanded(flex: 2, child: _buildProductCards()),
             ],
           ),
         ],
       ),
     );
   }
-  
+
   List<Widget> _buildProductTypesList() {
     List<String> types = [];
-    
-    if (_selectedFilter == 'All Collection' || _selectedFilter == 'Hot Selling') {
+
+    if (_selectedFilter == 'All Collection' ||
+        _selectedFilter == 'Hot Selling') {
       // Show all product types from all categories
       _productTypes.forEach((category, typeList) {
         types.addAll(typeList);
@@ -403,10 +413,10 @@ class _CustomerShopState extends State<CustomerShop> {
     } else {
       types = _productTypes[_selectedCategory] ?? [];
     }
-    
+
     return types.map((type) {
       final isSelected = _selectedProductType == type;
-      
+
       return GestureDetector(
         onTap: () {
           setState(() {
@@ -417,7 +427,9 @@ class _CustomerShopState extends State<CustomerShop> {
           width: double.infinity,
           padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
           decoration: BoxDecoration(
-            color: isSelected ? primaryGreen.withOpacity(0.1) : Colors.transparent,
+            color: isSelected
+                ? primaryGreen.withOpacity(0.1)
+                : Colors.transparent,
             border: Border(
               bottom: BorderSide(color: Colors.grey[200]!),
               left: BorderSide(
@@ -439,18 +451,14 @@ class _CustomerShopState extends State<CustomerShop> {
                 ),
               ),
               if (isSelected)
-                Icon(
-                  Icons.check_circle,
-                  size: 16,
-                  color: primaryGreen,
-                ),
+                Icon(Icons.check_circle, size: 16, color: primaryGreen),
             ],
           ),
         ),
       );
     }).toList();
   }
-  
+
   Widget _buildProductCards() {
     // Sample product data - in real app, this would come from your data source
     List<Map<String, dynamic>> products = [
@@ -511,7 +519,7 @@ class _CustomerShopState extends State<CustomerShop> {
         'image': 'assets/lanyard.jpg',
       },
     ];
-    
+
     // Filter products based on selected filter and product type
     List<Map<String, dynamic>> filteredProducts = products.where((product) {
       // First filter by collection
@@ -524,13 +532,18 @@ class _CustomerShopState extends State<CustomerShop> {
         return true;
       }
       // Filter by category and product type
-      return product['category'] == _selectedFilter && 
-             (_selectedProductType == product['type'] || _selectedFilter == 'All Collection');
+      return product['category'] == _selectedFilter &&
+          (_selectedProductType == product['type'] ||
+              _selectedFilter == 'All Collection');
     }).toList();
 
     // If no products match the specific type, show all from the category
-    if (filteredProducts.isEmpty && _selectedFilter != 'All Collection' && _selectedFilter != 'Hot Selling') {
-      filteredProducts = products.where((product) => product['category'] == _selectedFilter).toList();
+    if (filteredProducts.isEmpty &&
+        _selectedFilter != 'All Collection' &&
+        _selectedFilter != 'Hot Selling') {
+      filteredProducts = products
+          .where((product) => product['category'] == _selectedFilter)
+          .toList();
     }
 
     return Column(
@@ -579,7 +592,7 @@ class _CustomerShopState extends State<CustomerShop> {
                     ),
                     child: Icon(Icons.shopping_bag, color: Colors.grey[400]),
                   ),
-                  
+
                   // Product Details
                   Expanded(
                     child: Padding(
@@ -604,7 +617,7 @@ class _CustomerShopState extends State<CustomerShop> {
                           ),
                           SizedBox(height: 8),
                           Text(
-                            '\$${product['price'].toStringAsFixed(2)}',
+                            'RM${product['price'].toStringAsFixed(2)}',
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
                               color: primaryGreen,
@@ -615,7 +628,7 @@ class _CustomerShopState extends State<CustomerShop> {
                       ),
                     ),
                   ),
-                  
+
                   // Add to Cart Button
                   Padding(
                     padding: EdgeInsets.all(12),
@@ -624,15 +637,17 @@ class _CustomerShopState extends State<CustomerShop> {
                       color: primaryGreen,
                       onPressed: () {
                         // Add to cart functionality
-                        CartService().addItem(CartItem(
-                          name: product['name'],
-                          type: product['type'],
-                          price: product['price'],
-                        ));
-                        
+                        CartService().addItem(
+                          CartItem(
+                            name: product['name'],
+                            type: product['type'],
+                            price: product['price'],
+                          ),
+                        );
+
                         // Show confirmation snackbar
                         _showAddToCartSnackbar(product['name'], context);
-                        
+
                         // Update UI to reflect cart changes
                         setState(() {});
                       },
@@ -703,7 +718,7 @@ class _CartPageState extends State<CartPage> {
               ),
             ),
             SizedBox(height: 20),
-            
+
             // Cart Items
             if (CartService().items.isEmpty)
               Container(
@@ -718,19 +733,13 @@ class _CartPageState extends State<CartPage> {
                     SizedBox(height: 16),
                     Text(
                       'Your cart is empty',
-                      style: TextStyle(
-                        fontSize: 18,
-                        color: Colors.grey[600],
-                      ),
+                      style: TextStyle(fontSize: 18, color: Colors.grey[600]),
                     ),
                     SizedBox(height: 8),
                     Text(
                       'Add some eco-friendly products to get started!',
                       textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 14,
-                        color: Colors.grey[500],
-                      ),
+                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
                     ),
                   ],
                 ),
@@ -740,7 +749,7 @@ class _CartPageState extends State<CartPage> {
                 children: CartService().items.asMap().entries.map((entry) {
                   final index = entry.key;
                   final item = entry.value;
-                  
+
                   return Container(
                     margin: EdgeInsets.only(bottom: 16),
                     padding: EdgeInsets.all(16),
@@ -772,7 +781,7 @@ class _CartPageState extends State<CartPage> {
                           ),
                         ),
                         SizedBox(width: 16),
-                        
+
                         // Product Details
                         Expanded(
                           child: Column(
@@ -805,7 +814,7 @@ class _CartPageState extends State<CartPage> {
                             ],
                           ),
                         ),
-                        
+
                         // Quantity Controls
                         Column(
                           children: [
@@ -819,7 +828,10 @@ class _CartPageState extends State<CartPage> {
                                 children: [
                                   IconButton(
                                     icon: Icon(Icons.remove, size: 18),
-                                    onPressed: () => _updateQuantity(index, item.quantity - 1),
+                                    onPressed: () => _updateQuantity(
+                                      index,
+                                      item.quantity - 1,
+                                    ),
                                     padding: EdgeInsets.zero,
                                     constraints: BoxConstraints(minWidth: 36),
                                   ),
@@ -832,7 +844,10 @@ class _CartPageState extends State<CartPage> {
                                   ),
                                   IconButton(
                                     icon: Icon(Icons.add, size: 18),
-                                    onPressed: () => _updateQuantity(index, item.quantity + 1),
+                                    onPressed: () => _updateQuantity(
+                                      index,
+                                      item.quantity + 1,
+                                    ),
                                     padding: EdgeInsets.zero,
                                     constraints: BoxConstraints(minWidth: 36),
                                   ),
@@ -857,7 +872,7 @@ class _CartPageState extends State<CartPage> {
                   );
                 }).toList(),
               ),
-            
+
             if (CartService().items.isNotEmpty) ...[
               // Divider
               Container(
@@ -865,7 +880,7 @@ class _CartPageState extends State<CartPage> {
                 height: 1,
                 color: Colors.grey[300],
               ),
-              
+
               // Pricing Summary
               Container(
                 padding: EdgeInsets.all(16),
@@ -896,14 +911,18 @@ class _CartPageState extends State<CartPage> {
                       ],
                     ),
                     SizedBox(height: 12),
-                    
+
                     // Delivery Fee
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Row(
                           children: [
-                            Icon(Icons.check_box_outline_blank, size: 20, color: Colors.grey[600]),
+                            Icon(
+                              Icons.check_box_outline_blank,
+                              size: 20,
+                              color: Colors.grey[600],
+                            ),
                             SizedBox(width: 8),
                             Text(
                               'Delivery Fee',
@@ -924,10 +943,13 @@ class _CartPageState extends State<CartPage> {
                       ],
                     ),
                     SizedBox(height: 16),
-                    
+
                     // Total
                     Container(
-                      padding: EdgeInsets.symmetric(vertical: 12, horizontal: 16),
+                      padding: EdgeInsets.symmetric(
+                        vertical: 12,
+                        horizontal: 16,
+                      ),
                       decoration: BoxDecoration(
                         color: primaryGreen.withOpacity(0.1),
                         borderRadius: BorderRadius.circular(8),
@@ -955,7 +977,7 @@ class _CartPageState extends State<CartPage> {
                       ),
                     ),
                     SizedBox(height: 16),
-                    
+
                     // Thank you message
                     Container(
                       width: double.infinity,
@@ -984,11 +1006,11 @@ class _CartPageState extends State<CartPage> {
                   ],
                 ),
               ),
-              
+
               SizedBox(height: 20),
-              
+
               // Checkout Button
-              Container(
+              SizedBox(
                 width: double.infinity,
                 child: ElevatedButton(
                   onPressed: _proceedToCheckout,
@@ -1002,10 +1024,7 @@ class _CartPageState extends State<CartPage> {
                   ),
                   child: Text(
                     'Proceed to Checkout',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -1019,7 +1038,10 @@ class _CartPageState extends State<CartPage> {
 
 // Checkout Page
 class CheckoutPage extends StatefulWidget {
+  const CheckoutPage({super.key});
+
   @override
+  // ignore: library_private_types_in_public_api
   _CheckoutPageState createState() => _CheckoutPageState();
 }
 
@@ -1028,7 +1050,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
   PaymentMethod _selectedPaymentMethod = PaymentMethod.ewallet;
   Bank? _selectedBank;
   EWallet? _selectedEWallet;
-  
+
   final List<Bank> _banks = [
     Bank(name: 'Maybank', code: 'MB2U', logo: 'M'),
     Bank(name: 'CIMB Bank', code: 'CIMB', logo: 'C'),
@@ -1038,7 +1060,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
     Bank(name: 'AmBank', code: 'AMMB', logo: 'A'),
     Bank(name: 'Bank Islam', code: 'BIMB', logo: 'B'),
   ];
-  
+
   final List<EWallet> _eWallets = [
     EWallet(name: 'Touch \'n Go', logo: 'TNG'),
     EWallet(name: 'GrabPay', logo: 'Grab'),
@@ -1051,7 +1073,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
   double get total => subtotal + deliveryFee;
 
   void _processPayment() {
-    if (_selectedPaymentMethod == PaymentMethod.ewallet && _selectedEWallet == null) {
+    if (_selectedPaymentMethod == PaymentMethod.ewallet &&
+        _selectedEWallet == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: Text('Please select an e-wallet'),
@@ -1060,7 +1083,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
       );
       return;
     }
-    
+
     if (_selectedPaymentMethod == PaymentMethod.fpx && _selectedBank == null) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
@@ -1090,14 +1113,18 @@ class _CheckoutPageState extends State<CheckoutPage> {
 
     // Simulate payment processing
     Future.delayed(Duration(seconds: 2), () {
+      // ignore: use_build_context_synchronously
       Navigator.pop(context); // Close processing dialog
-      
+
       // Show success dialog
       showDialog(
+        // ignore: use_build_context_synchronously
         context: context,
         builder: (context) => AlertDialog(
           title: Text('Payment Successful!'),
-          content: Text('Thank you for your purchase. Your order has been placed successfully.'),
+          content: Text(
+            'Thank you for your purchase. Your order has been placed successfully.',
+          ),
           actions: [
             TextButton(
               onPressed: () {
@@ -1144,7 +1171,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
             ),
             SizedBox(height: 16),
-            
+
             // Order Items
             Container(
               decoration: BoxDecoration(
@@ -1160,29 +1187,35 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
               child: Column(
                 children: [
-                  ...CartService().items.map((item) => ListTile(
-                    leading: Container(
-                      width: 40,
-                      height: 40,
-                      decoration: BoxDecoration(
-                        color: Colors.grey[200],
-                        borderRadius: BorderRadius.circular(8),
-                      ),
-                      child: Icon(Icons.shopping_bag_outlined, size: 20),
-                    ),
-                    title: Text(item.name),
-                    subtitle: Text('${item.type} • Qty: ${item.quantity}'),
-                    trailing: Text(
-                      'RM${(item.price * item.quantity).toStringAsFixed(2)}',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        color: primaryGreen,
-                      ),
-                    ),
-                  )).toList(),
-                  
+                  ...CartService().items
+                      .map(
+                        (item) => ListTile(
+                          leading: Container(
+                            width: 40,
+                            height: 40,
+                            decoration: BoxDecoration(
+                              color: Colors.grey[200],
+                              borderRadius: BorderRadius.circular(8),
+                            ),
+                            child: Icon(Icons.shopping_bag_outlined, size: 20),
+                          ),
+                          title: Text(item.name),
+                          subtitle: Text(
+                            '${item.type} • Qty: ${item.quantity}',
+                          ),
+                          trailing: Text(
+                            'RM${(item.price * item.quantity).toStringAsFixed(2)}',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              color: primaryGreen,
+                            ),
+                          ),
+                        ),
+                      )
+                      .toList(),
+
                   Divider(),
-                  
+
                   // Pricing Summary
                   Padding(
                     padding: EdgeInsets.all(16),
@@ -1233,9 +1266,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ],
               ),
             ),
-            
+
             SizedBox(height: 24),
-            
+
             // Payment Method Selection
             Text(
               'Payment Method',
@@ -1246,7 +1279,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
               ),
             ),
             SizedBox(height: 16),
-            
+
             Container(
               decoration: BoxDecoration(
                 color: Colors.white,
@@ -1276,7 +1309,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       activeColor: primaryGreen,
                     ),
                   ),
-                  
+
                   if (_selectedPaymentMethod == PaymentMethod.ewallet) ...[
                     Divider(height: 1),
                     Padding(
@@ -1304,12 +1337,19 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   });
                                 },
                                 child: Container(
-                                  padding: EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  padding: EdgeInsets.symmetric(
+                                    horizontal: 16,
+                                    vertical: 12,
+                                  ),
                                   decoration: BoxDecoration(
-                                    color: isSelected ? primaryGreen.withOpacity(0.1) : Colors.grey[50],
+                                    color: isSelected
+                                        ? primaryGreen.withOpacity(0.1)
+                                        : Colors.grey[50],
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
-                                      color: isSelected ? primaryGreen : Colors.grey[300]!,
+                                      color: isSelected
+                                          ? primaryGreen
+                                          : Colors.grey[300]!,
                                       width: 2,
                                     ),
                                   ),
@@ -1320,7 +1360,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                         height: 40,
                                         decoration: BoxDecoration(
                                           color: primaryGreen,
-                                          borderRadius: BorderRadius.circular(20),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
                                         ),
                                         child: Center(
                                           child: Text(
@@ -1336,7 +1378,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                       Text(
                                         ewallet.name,
                                         style: TextStyle(
-                                          fontWeight: isSelected ? FontWeight.bold : FontWeight.normal,
+                                          fontWeight: isSelected
+                                              ? FontWeight.bold
+                                              : FontWeight.normal,
                                         ),
                                       ),
                                     ],
@@ -1349,7 +1393,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       ),
                     ),
                   ],
-                  
+
                   // FPX Option
                   ListTile(
                     leading: Icon(Icons.account_balance, color: primaryGreen),
@@ -1365,7 +1409,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                       activeColor: primaryGreen,
                     ),
                   ),
-                  
+
                   if (_selectedPaymentMethod == PaymentMethod.fpx) ...[
                     Divider(height: 1),
                     Padding(
@@ -1394,10 +1438,14 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                   margin: EdgeInsets.only(bottom: 8),
                                   padding: EdgeInsets.all(12),
                                   decoration: BoxDecoration(
-                                    color: isSelected ? primaryGreen.withOpacity(0.1) : Colors.grey[50],
+                                    color: isSelected
+                                        ? primaryGreen.withOpacity(0.1)
+                                        : Colors.grey[50],
                                     borderRadius: BorderRadius.circular(8),
                                     border: Border.all(
-                                      color: isSelected ? primaryGreen : Colors.grey[300]!,
+                                      color: isSelected
+                                          ? primaryGreen
+                                          : Colors.grey[300]!,
                                       width: 2,
                                     ),
                                   ),
@@ -1408,7 +1456,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                         height: 40,
                                         decoration: BoxDecoration(
                                           color: primaryGreen,
-                                          borderRadius: BorderRadius.circular(20),
+                                          borderRadius: BorderRadius.circular(
+                                            20,
+                                          ),
                                         ),
                                         child: Center(
                                           child: Text(
@@ -1423,7 +1473,8 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                       SizedBox(width: 12),
                                       Expanded(
                                         child: Column(
-                                          crossAxisAlignment: CrossAxisAlignment.start,
+                                          crossAxisAlignment:
+                                              CrossAxisAlignment.start,
                                           children: [
                                             Text(
                                               bank.name,
@@ -1442,7 +1493,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
                                         ),
                                       ),
                                       if (isSelected)
-                                        Icon(Icons.check_circle, color: primaryGreen),
+                                        Icon(
+                                          Icons.check_circle,
+                                          color: primaryGreen,
+                                        ),
                                     ],
                                   ),
                                 ),
@@ -1456,9 +1510,9 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ],
               ),
             ),
-            
+
             SizedBox(height: 32),
-            
+
             // Pay Now Button
             Container(
               width: double.infinity,
@@ -1474,10 +1528,7 @@ class _CheckoutPageState extends State<CheckoutPage> {
                 ),
                 child: Text(
                   'Pay Now - RM${total.toStringAsFixed(2)}',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                  ),
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                 ),
               ),
             ),
@@ -1492,10 +1543,10 @@ class _CheckoutPageState extends State<CheckoutPage> {
 class OrderConfirmationPage extends StatelessWidget {
   final Color primaryGreen = const Color(0xFF42B642);
   final VoidCallback? onContinueShopping;
-  
+
   // Constructor with optional callback
-  OrderConfirmationPage({this.onContinueShopping});
-  
+  const OrderConfirmationPage({super.key, this.onContinueShopping});
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -1510,11 +1561,7 @@ class OrderConfirmationPage extends StatelessWidget {
           child: Column(
             mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(
-                Icons.check_circle,
-                size: 80,
-                color: primaryGreen,
-              ),
+              Icon(Icons.check_circle, size: 80, color: primaryGreen),
               SizedBox(height: 24),
               Text(
                 'Order Placed Successfully!',
@@ -1528,33 +1575,43 @@ class OrderConfirmationPage extends StatelessWidget {
               SizedBox(height: 16),
               Text(
                 'Thank you for your purchase. Your order has been confirmed and will be processed shortly.',
-                style: TextStyle(
-                  fontSize: 16,
-                  color: Colors.grey[600],
-                ),
+                style: TextStyle(fontSize: 16, color: Colors.grey[600]),
                 textAlign: TextAlign.center,
               ),
               SizedBox(height: 32),
               ElevatedButton(
                 onPressed: () {
-                  if (onContinueShopping != null) {
-                    // Use the custom callback if provided
-                    onContinueShopping!();
-                  } else {
-                    // Default behavior: navigate to home page
-                    Navigator.pushAndRemoveUntil(
-                      context,
-                      MaterialPageRoute(builder: (context) => CustomerShop()),
-                      (route) => false,
-                    );
-                  }
+                  // print('Continue Shopping button pressed'); // Debug log
+                  // if (onContinueShopping != null) {
+                  //   // Use the custom callback if provided
+                  //   onContinueShopping!();
+                  // } else {
+                  //   // Navigate back to shop page by:
+                  //   // 1. Pop all routes to return to CustomerWidgetTree
+                  //   Navigator.of(context).popUntil((route) => route.isFirst);
+                  //   // 2. Set the selected page to Shop (index 1)
+                  //   print('Setting selectedPageNotifier to 1'); // Debug log
+                  //   selectedPageNotifier.value = 1;
+                  // }
+                  Navigator.pushReplacement(
+                    context,
+                    MaterialPageRoute(
+                      builder: (context) {
+                        return CustomerWidgetTree();
+                      },
+                    ),
+                  );
                 },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: primaryGreen,
                   foregroundColor: Colors.white,
                   padding: EdgeInsets.symmetric(horizontal: 32, vertical: 12),
+                  elevation: 4,
                 ),
-                child: Text('Continue Shopping'),
+                child: Text(
+                  'Continue Shopping',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                ),
               ),
             ],
           ),
