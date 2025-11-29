@@ -1,15 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:project_sel/data/notifier.dart';
-import 'package:project_sel/view/pages/customer_shop.dart';
-import 'package:project_sel/view/pages/guest_cart.dart';
+import 'package:project_sel/view/pages/guest_catalogue.dart';
 import 'package:project_sel/view/pages/guest_home.dart';
 import 'package:project_sel/view/pages/guest_profile.dart';
+import 'package:project_sel/view/pages/guest_shop.dart';
 import 'package:project_sel/widgets/customer_navbar_widget.dart';
 
 List<Widget> pages = [
   GuestHome(),
-  CustomerShop(),
-  GuestCart(),
+  GuestShop(),
+  GuestCatalogue(),
   GuestProfile(),
 ];
 
