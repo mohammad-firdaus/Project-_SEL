@@ -20,8 +20,8 @@ class CustomerNavigationbarWidget extends StatelessWidget {
               label: 'Shop',
             ),
             NavigationDestination(
-              icon: Icon(Icons.shopping_cart_outlined),
-              label: 'Cart',
+              icon: Icon(Icons.insert_drive_file_outlined),
+              label: 'Catalogue',
             ),
             NavigationDestination(icon: Icon(Icons.person), label: 'Profile'),
           ],
