@@ -33,7 +33,7 @@ class WelcomePage extends StatelessWidget {
                 ClipRRect(
                   borderRadius: BorderRadius.circular(20.0),
                   child: Image.asset(
-                    'assets/images/logo_nobg.PNG', // Replace with your image path
+                    'assets/images/logo3-nobg.png', // Replace with your image path
                     width: double.infinity,
                     height: 300,
                   ),
