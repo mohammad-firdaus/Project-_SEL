@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_sel/view/pages/geminiAI_chatbot.dart';
 
 class GuestHome extends StatelessWidget {
   const GuestHome({super.key});
@@ -234,6 +235,17 @@ class GuestHome extends StatelessWidget {
     );
   }
 
+  void _openChatBot(BuildContext context) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(
+        builder: (context) {
+          return GeminiaiChatbot();
+        },
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Stack(
@@ -415,22 +427,12 @@ class GuestHome extends StatelessWidget {
             ),
             child: FloatingActionButton(
               onPressed: () {
-                // TODO: Navigate to AI chatbot page
-                ScaffoldMessenger.of(context).showSnackBar(
-                  SnackBar(
-                    content: Row(
-                      children: const [
-                        Icon(Icons.smart_toy, color: Colors.white),
-                        SizedBox(width: 12),
-                        Text('AI Chatbot coming soon!'),
-                      ],
-                    ),
-                    backgroundColor: const Color(0xFF42B642),
-                    behavior: SnackBarBehavior.floating,
-                    shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(10),
-                    ),
-                    duration: const Duration(seconds: 2),
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return GeminiaiChatbot();
+                    },
                   ),
                 );
               },

@@ -405,11 +405,7 @@ class _CustomerShopState extends State<CustomerShop>
                   // Right - Product Cards (scrollable in its own container)
                   Expanded(
                     child: Container(
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        border: Border.all(color: Colors.grey[200]!),
-                      ),
+                      // Invisible container - no background, border, or shadow
                       child: SingleChildScrollView(child: _buildProductCards()),
                     ),
                   ),
@@ -855,7 +851,7 @@ class _CustomerShopState extends State<CustomerShop>
         'name': 'Totebag',
         'price': 15.00,
         'category': 'Standard',
-        'type': 'Totebag',
+        'type': 'Tote Bag',
         'image':
             'assets/images/PRODUCT/STANDARD_COLLECTION/TOTEBAG/totebag1.jpg',
       },
@@ -863,7 +859,7 @@ class _CustomerShopState extends State<CustomerShop>
         'name': 'Totebag',
         'price': 15.00,
         'category': 'Standard',
-        'type': 'Totebag',
+        'type': 'Tote Bag',
         'image':
             'assets/images/PRODUCT/STANDARD_COLLECTION/TOTEBAG/totebag2.jpg',
       },
@@ -871,7 +867,7 @@ class _CustomerShopState extends State<CustomerShop>
         'name': 'Totebag',
         'price': 15.00,
         'category': 'Standard',
-        'type': 'Totebag',
+        'type': 'Tote Bag',
         'image':
             'assets/images/PRODUCT/STANDARD_COLLECTION/TOTEBAG/totebag3.jpg',
       },
@@ -879,7 +875,7 @@ class _CustomerShopState extends State<CustomerShop>
         'name': 'Totebag',
         'price': 15.00,
         'category': 'Standard',
-        'type': 'Totebag',
+        'type': 'Tote Bag',
         'image':
             'assets/images/PRODUCT/STANDARD_COLLECTION/TOTEBAG/totebag4.jpg',
       },
@@ -929,29 +925,24 @@ class _CustomerShopState extends State<CustomerShop>
 
     // Filter products based on selected filter and product type
     List<Map<String, dynamic>> filteredProducts = products.where((product) {
-      // First filter by collection
-      if (_selectedFilter == 'All Collection') {
-        // Then filter by product type if one is selected
-        return _selectedProductType == product['type'];
+      // Always filter by the selected product type first
+      if (_selectedProductType != product['type']) {
+        return false;
       }
-      if (_selectedFilter == 'Hot Selling') {
-        // Add hot selling logic - for demo, just return some products
+
+      // Then filter by collection/category
+      if (_selectedFilter == 'All Collection') {
         return true;
       }
-      // Filter by category and product type
-      return product['category'] == _selectedFilter &&
-          (_selectedProductType == product['type'] ||
-              _selectedFilter == 'All Collection');
+      if (_selectedFilter == 'Hot Selling') {
+        return true;
+      }
+      // Filter by specific category
+      return product['category'] == _selectedFilter;
     }).toList();
 
-    // If no products match the specific type, show all from the category
-    if (filteredProducts.isEmpty &&
-        _selectedFilter != 'All Collection' &&
-        _selectedFilter != 'Hot Selling') {
-      filteredProducts = products
-          .where((product) => product['category'] == _selectedFilter)
-          .toList();
-    }
+    // Sort products by name to ensure consistent display
+    filteredProducts.sort((a, b) => a['name'].compareTo(b['name']));
 
     return Column(
       children: [
