@@ -574,7 +574,7 @@ class _GuestShopState extends State<GuestShop>
         'category': 'Basic',
         'type': 'Scrunchies',
         'image':
-            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_standard1.jpg',
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe1.jpg',
       },
       {
         'name': 'Scrunchies - Deluxe',
@@ -582,7 +582,7 @@ class _GuestShopState extends State<GuestShop>
         'category': 'Basic',
         'type': 'Scrunchies',
         'image':
-            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_standard2.jpg',
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe2.jpg',
       },
       {
         'name': 'Scrunchies - Deluxe',
@@ -590,7 +590,7 @@ class _GuestShopState extends State<GuestShop>
         'category': 'Basic',
         'type': 'Scrunchies',
         'image':
-            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_standard3.jpg',
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe3.jpg',
       },
       {
         'name': 'Scrunchies - Deluxe',
@@ -598,7 +598,7 @@ class _GuestShopState extends State<GuestShop>
         'category': 'Basic',
         'type': 'Scrunchies',
         'image':
-            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_standard4.jpg',
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe4.jpg',
       },
       {
         'name': 'Scrunchies - Deluxe',
@@ -606,7 +606,7 @@ class _GuestShopState extends State<GuestShop>
         'category': 'Basic',
         'type': 'Scrunchies',
         'image':
-            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_standard5.jpg',
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe5.jpg',
       },
       {
         'name': 'Scrunchies - Deluxe',
@@ -614,7 +614,7 @@ class _GuestShopState extends State<GuestShop>
         'category': 'Basic',
         'type': 'Scrunchies',
         'image':
-            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_standard6.jpg',
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe6.jpg',
       },
       {
         'name': 'Scrunchies - Deluxe',
@@ -622,7 +622,7 @@ class _GuestShopState extends State<GuestShop>
         'category': 'Basic',
         'type': 'Scrunchies',
         'image':
-            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_standard7.jpg',
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe7.jpg',
       },
       {
         'name': 'Scrunchies - Deluxe',
@@ -630,7 +630,7 @@ class _GuestShopState extends State<GuestShop>
         'category': 'Basic',
         'type': 'Scrunchies',
         'image':
-            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_standard8.jpg',
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe8.jpg',
       },
       {
         'name': 'Scrunchies - Deluxe',
@@ -638,7 +638,7 @@ class _GuestShopState extends State<GuestShop>
         'category': 'Basic',
         'type': 'Scrunchies',
         'image':
-            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_standard9.jpg',
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe9.jpg',
       },
       {
         'name': 'Scrunchies - Deluxe',
@@ -646,7 +646,7 @@ class _GuestShopState extends State<GuestShop>
         'category': 'Basic',
         'type': 'Scrunchies',
         'image':
-            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_standard10.jpg',
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe10.jpg',
       },
       {
         'name': 'Deluxe Wrist Strap',
