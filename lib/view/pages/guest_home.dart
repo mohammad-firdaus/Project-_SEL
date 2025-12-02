@@ -128,7 +128,7 @@ class GuestHome extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Text(
-                  '27 spots left',
+                  'Coming Soon',
                   style: TextStyle(
                     color: Colors.green,
                     fontSize: 12,
@@ -140,29 +140,46 @@ class GuestHome extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Saturday, Nov 2, 2025 - 10:00 AM',
+            'Saturday, Nov 2, 2025',
             style: TextStyle(color: Colors.white70, fontSize: 12),
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'Join us for a community beach cleanup and earn double points!',
-            style: TextStyle(color: Colors.white, fontSize: 14),
+          SizedBox(height: 12),
+          Divider(height: 1, thickness: 1),
+          SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.location_on, size: 16, color: Colors.white),
+              SizedBox(width: 8),
+              // Allow location to wrap and constrain lines to avoid overflow
+              Expanded(
+                child: Text(
+                  'Pantai Cenang Beach Park, Lot 123, Jalan Pantai Cenang, 07000 Langkawi, Kedah',
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.green,
-                backgroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.description_outlined, size: 16, color: Colors.white),
+              SizedBox(width: 8),
+              // Allow location to wrap and constrain lines to avoid overflow
+              Expanded(
+                child: Text(
+                  'Join volunteers to remove debris and collect recyclables at Pantai Cenang. Supplies and refreshments provided. Family-friendly — registration opens at 8:00 AM.',
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: const Text('Register Now'),
-            ),
+            ],
           ),
         ],
       ),
@@ -231,17 +248,6 @@ class GuestHome extends StatelessWidget {
               ),
           ],
         ),
-      ),
-    );
-  }
-
-  void _openChatBot(BuildContext context) {
-    Navigator.push(
-      context,
-      MaterialPageRoute(
-        builder: (context) {
-          return GeminiaiChatbot();
-        },
       ),
     );
   }

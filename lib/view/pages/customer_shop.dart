@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_sel/view/customer_widget_tree.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // Cart item model to manage cart data
 class CartItem {
@@ -91,6 +92,7 @@ class _CustomerShopState extends State<CustomerShop>
   String _selectedFilter = 'All Collection';
   String _selectedCategory = 'Basic';
   String _selectedProductType = 'Scrunchies';
+  String _searchQuery = '';
 
   final List<String> _filters = [
     'All Collection',
@@ -163,6 +165,11 @@ class _CustomerShopState extends State<CustomerShop>
                   SizedBox(width: 8),
                   Expanded(
                     child: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                      },
                       decoration: InputDecoration(
                         hintText: 'Search products...',
                         hintStyle: TextStyle(color: Colors.grey[600]),
@@ -240,7 +247,7 @@ class _CustomerShopState extends State<CustomerShop>
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
-                          'Special Offer',
+                          'Discover More',
                           style: TextStyle(
                             color: Colors.white,
                             fontSize: 20,
@@ -249,7 +256,7 @@ class _CustomerShopState extends State<CustomerShop>
                         ),
                         SizedBox(height: 4),
                         Text(
-                          'Get 20% off on all\npremium products',
+                          'Browse our website for more\ninteresting eco-friendly products',
                           style: TextStyle(color: Colors.white, fontSize: 14),
                         ),
                       ],
@@ -259,12 +266,16 @@ class _CustomerShopState extends State<CustomerShop>
                     right: 16,
                     bottom: 16,
                     child: GestureDetector(
-                      onTap: () {
-                        setState(() {
-                          _selectedFilter = 'Premium';
-                          _selectedCategory = 'Premium';
-                          _selectedProductType = 'Knot Bag';
-                        });
+                      onTap: () async {
+                        final url = Uri.parse(
+                          'https://www.instagram.com/ecofab_wastetowealth?igsh=bXRud3RIMzlyMng1',
+                        );
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(
+                            url,
+                            mode: LaunchMode.externalApplication,
+                          );
+                        }
                       },
                       child: Container(
                         padding: EdgeInsets.symmetric(
@@ -276,7 +287,7 @@ class _CustomerShopState extends State<CustomerShop>
                           borderRadius: BorderRadius.circular(20),
                         ),
                         child: Text(
-                          'Shop Now',
+                          'Visit Website',
                           style: TextStyle(
                             color: Color(0xFF00796B),
                             fontWeight: FontWeight.bold,
@@ -923,8 +934,26 @@ class _CustomerShopState extends State<CustomerShop>
       },
     ];
 
-    // Filter products based on selected filter and product type
+    // Filter products based on selected filter, product type, and search query
     List<Map<String, dynamic>> filteredProducts = products.where((product) {
+      // If search query is active, search across all products
+      if (_searchQuery.isNotEmpty) {
+        if (!product['name'].toLowerCase().contains(
+          _searchQuery.toLowerCase(),
+        )) {
+          return false;
+        }
+        // When searching, ignore product type filter and only filter by category
+        if (_selectedFilter == 'All Collection') {
+          return true;
+        }
+        if (_selectedFilter == 'Hot Selling') {
+          return true;
+        }
+        return product['category'] == _selectedFilter;
+      }
+
+      // When not searching, apply product type filter
       // Always filter by the selected product type first
       if (_selectedProductType != product['type']) {
         return false;

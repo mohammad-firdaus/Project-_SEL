@@ -418,7 +418,7 @@ class OrderCard extends StatelessWidget {
                 child: order.status == OrderStatus.shipped
                     ? ElevatedButton.icon(
                         onPressed: () async {
-                          final result = await Navigator.push(
+                          await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => CustomerOrderDetailsPage(

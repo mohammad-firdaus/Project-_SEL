@@ -75,19 +75,19 @@ class _AdminHomeState extends State<AdminHome> {
                             Icons.people,
                           ),
                           _buildSummaryCard(
-                            'Rec. Active',
+                            'Total Orders',
                             '8,567',
                             Colors.orange,
                             Icons.check_circle_outline,
                           ),
                           _buildSummaryCard(
-                            'Events Attended',
+                            'Events Organized',
                             '2,457',
                             Colors.blueAccent,
                             Icons.event_available,
                           ),
                           _buildSummaryCard(
-                            'Points Earned',
+                            'Total Sales',
                             '523K',
                             Colors.purple,
                             Icons.monetization_on_outlined,
@@ -243,22 +243,28 @@ class _AdminHomeState extends State<AdminHome> {
                 icon: Icons.beach_access_outlined,
                 title: 'Beach Cleanup Drive',
                 date: 'Nov 12, 2023',
-                location: 'Batu Pahat City, Langkawi',
-                participants: 25,
+                location:
+                    'Pantai Cenang Beach Park, Lot 123, Jalan Pantai Cenang, 07000 Langkawi, Kedah',
+                description:
+                    'Join volunteers to remove debris and collect recyclables at Pantai Cenang. Supplies and refreshments provided. Family-friendly — registration opens at 8:00 AM.',
               ),
               _buildEventItem(
                 icon: Icons.recycling_outlined,
                 title: 'Recycling Workshop',
                 date: 'Nov 20, 2023',
-                location: 'Kuala Lumpur',
-                participants: 50,
+                location:
+                    'Kuala Lumpur Community Centre, Hall B, Jalan Tun Razak, 50400 Kuala Lumpur',
+                description:
+                    'Hands-on workshop covering sorting, upcycling and home-composting techniques. Bring small recyclables for demonstrations. Limited seats — arrive early to secure a spot.',
               ),
               _buildEventItem(
                 icon: Icons.local_florist_outlined,
                 title: 'Green Market Festival',
                 date: 'Dec 15, 2023',
-                location: 'Penang',
-                participants: 85,
+                location:
+                    'Padang Kota Lama / Lebuh Pantai, George Town, 10200 George Town, Penang — Main Stage near the waterfront',
+                description:
+                    'Weekend market with sustainable vendors, organic produce, live music and DIY eco-activities for kids. Free entry — come explore local green businesses.',
               ),
 
               SizedBox(height: 25),
@@ -289,15 +295,14 @@ class _AdminHomeState extends State<AdminHome> {
                       ),
                     ),
                     SizedBox(height: 15),
-                    _buildSummaryRowWhite('New Users', '+28'),
                     _buildSummaryRowWhite('Orders Completed', '+17'),
-                    _buildSummaryRowWhite('Event Participation', '+11'),
+                    _buildSummaryRowWhite('Event Organized', '+11'),
                     Divider(height: 30, thickness: 1, color: Colors.white),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
                         Text(
-                          'Total Rewards',
+                          'Total Sales',
                           style: TextStyle(
                             fontWeight: FontWeight.bold,
                             fontSize: 16,
@@ -553,7 +558,7 @@ class _AdminHomeState extends State<AdminHome> {
     required String title,
     required String date,
     required String location,
-    required int participants,
+    required String description,
   }) {
     String formatDate(String dateStr) {
       List<String> parts = dateStr.split(' ');
@@ -585,30 +590,6 @@ class _AdminHomeState extends State<AdminHome> {
                   style: TextStyle(color: Colors.grey[700], fontSize: 14),
                 ),
                 Spacer(),
-                Icon(Icons.location_on, size: 16, color: Colors.grey),
-                SizedBox(width: 4),
-                Text(
-                  location,
-                  style: TextStyle(color: Colors.grey[700], fontSize: 14),
-                ),
-              ],
-            ),
-            SizedBox(height: 12),
-            Divider(height: 1, thickness: 1),
-            SizedBox(height: 12),
-            Row(
-              children: [
-                Icon(Icons.people, size: 20, color: Colors.green),
-                SizedBox(width: 8),
-                Text(
-                  '$participants going',
-                  style: TextStyle(
-                    color: Colors.green,
-                    fontWeight: FontWeight.bold,
-                    fontSize: 14,
-                  ),
-                ),
-                Spacer(),
                 Container(
                   padding: EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                   decoration: BoxDecoration(
@@ -623,6 +604,53 @@ class _AdminHomeState extends State<AdminHome> {
                       fontSize: 12,
                     ),
                   ),
+                ),
+              ],
+            ),
+            SizedBox(height: 12),
+            Divider(height: 1, thickness: 1),
+            SizedBox(height: 12),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(Icons.location_on, size: 16, color: Colors.green),
+                    SizedBox(width: 8),
+                    // Allow location to wrap and constrain lines to avoid overflow
+                    Expanded(
+                      child: Text(
+                        location,
+                        style: TextStyle(color: Colors.green, fontSize: 14),
+                        maxLines: 4,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: true,
+                      ),
+                    ),
+                  ],
+                ),
+                SizedBox(height: 12),
+                Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Icon(
+                      Icons.description_outlined,
+                      size: 16,
+                      color: Colors.grey[700],
+                    ),
+                    SizedBox(width: 8),
+                    // Allow description to take remaining width and wrap
+                    Expanded(
+                      child: Text(
+                        description,
+                        style: TextStyle(color: Colors.grey[700], fontSize: 14),
+                        maxLines: 7,
+                        overflow: TextOverflow.ellipsis,
+                        softWrap: true,
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
