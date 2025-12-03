@@ -16,6 +16,8 @@ class Order {
 
   int? rating;
   String? feedback;
+  String? trackingNumber;
+  String? imageProof;
 
   Order({
     required this.orderId,
@@ -24,6 +26,8 @@ class Order {
     required this.items,
     this.rating,
     this.feedback,
+    this.trackingNumber,
+    this.imageProof,
   });
 
   int get totalAmount =>

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:project_sel/view/customer_widget_tree.dart';
-import 'package:project_sel/view/pages/login_page.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 // Cart item model to manage cart data
 class CartItem {
@@ -92,6 +92,7 @@ class _GuestShopState extends State<GuestShop>
   String _selectedFilter = 'All Collection';
   String _selectedCategory = 'Basic';
   String _selectedProductType = 'Scrunchies';
+  String _searchQuery = '';
 
   final List<String> _filters = [
     'All Collection',
@@ -117,285 +118,313 @@ class _GuestShopState extends State<GuestShop>
       SnackBar(
         content: Text('$productName added to cart!'),
         duration: Duration(seconds: 2),
-        action: SnackBarAction(
-          label: 'View Cart',
-          textColor: Colors.white,
-          onPressed: () {
-            _navigateToCart(context);
-          },
-        ),
         backgroundColor: primaryGreen,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
       ),
     );
   }
 
   // Method to navigate to cart page
-  void _navigateToCart(BuildContext context) {
-    Navigator.push(
+  void _navigateToCart(BuildContext context) async {
+    ScaffoldMessenger.of(context).hideCurrentSnackBar();
+    await Navigator.push(
       context,
       MaterialPageRoute(builder: (context) => CartPage()),
     );
+    // Refresh UI when returning from cart page
+    setState(() {});
   }
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: EdgeInsets.all(16),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Search Bar with Cart Icon
-          Container(
-            margin: EdgeInsets.only(bottom: 16),
-            padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-            decoration: BoxDecoration(
-              color: Color(0xFFE0F7FA),
-              borderRadius: BorderRadius.circular(25),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black12,
-                  blurRadius: 8,
-                  offset: Offset(0, 2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Icon(Icons.search, color: Colors.grey[600]),
-                SizedBox(width: 8),
-                Expanded(
-                  child: TextField(
-                    decoration: InputDecoration(
-                      hintText: 'Search products...',
-                      hintStyle: TextStyle(color: Colors.grey[600]),
-                      border: InputBorder.none,
-                      isDense: true,
-                    ),
-                    style: TextStyle(color: Colors.grey[800]),
+    return Scaffold(
+      body: Padding(
+        padding: EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Search Bar with Cart Icon
+            Container(
+              margin: EdgeInsets.only(bottom: 16),
+              padding: EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: Color(0xFFE0F7FA),
+                borderRadius: BorderRadius.circular(25),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black12,
+                    blurRadius: 8,
+                    offset: Offset(0, 2),
                   ),
-                ),
-                // Cart icon with badge
-                Stack(
-                  children: [
-                    IconButton(
-                      icon: Icon(Icons.shopping_cart),
-                      color: primaryGreen,
-                      onPressed: () => _navigateToCart(context),
-                    ),
-                    if (CartService().totalItems > 0)
-                      Positioned(
-                        right: 8,
-                        top: 8,
-                        child: Container(
-                          padding: EdgeInsets.all(2),
-                          decoration: BoxDecoration(
-                            color: Colors.red,
-                            borderRadius: BorderRadius.circular(6),
-                          ),
-                          constraints: BoxConstraints(
-                            minWidth: 14,
-                            minHeight: 14,
-                          ),
-                          child: Text(
-                            CartService().totalItems.toString(),
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 8,
-                              fontWeight: FontWeight.bold,
-                            ),
-                            textAlign: TextAlign.center,
-                          ),
-                        ),
-                      ),
-                  ],
-                ),
-              ],
-            ),
-          ),
-
-          // Advertisement Box
-          Container(
-            width: double.infinity,
-            height: 120,
-            margin: EdgeInsets.only(bottom: 16),
-            decoration: BoxDecoration(
-              gradient: LinearGradient(
-                begin: Alignment.topLeft,
-                end: Alignment.bottomRight,
-                colors: [Color(0xFF4DB6AC), primaryGreen],
+                ],
               ),
-              borderRadius: BorderRadius.circular(12),
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black26,
-                  blurRadius: 6,
-                  offset: Offset(0, 3),
-                ),
-              ],
-            ),
-            child: Stack(
-              children: [
-                Positioned(
-                  left: 16,
-                  top: 16,
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
+              child: Row(
+                children: [
+                  Icon(Icons.search, color: Colors.grey[600]),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: TextField(
+                      onChanged: (value) {
+                        setState(() {
+                          _searchQuery = value;
+                        });
+                      },
+                      decoration: InputDecoration(
+                        hintText: 'Search products...',
+                        hintStyle: TextStyle(color: Colors.grey[600]),
+                        border: InputBorder.none,
+                        isDense: true,
+                      ),
+                      style: TextStyle(color: Colors.grey[800]),
+                    ),
+                  ),
+                  // Cart icon with badge
+                  Stack(
                     children: [
-                      Text(
-                        'Special Offer',
-                        style: TextStyle(
-                          color: Colors.white,
-                          fontSize: 20,
-                          fontWeight: FontWeight.bold,
+                      IconButton(
+                        icon: Icon(Icons.shopping_cart),
+                        color: primaryGreen,
+                        onPressed: () => _navigateToCart(context),
+                      ),
+                      if (CartService().totalItems > 0)
+                        Positioned(
+                          right: 8,
+                          top: 8,
+                          child: Container(
+                            padding: EdgeInsets.all(2),
+                            decoration: BoxDecoration(
+                              color: Colors.red,
+                              borderRadius: BorderRadius.circular(6),
+                            ),
+                            constraints: BoxConstraints(
+                              minWidth: 14,
+                              minHeight: 14,
+                            ),
+                            child: Text(
+                              CartService().totalItems.toString(),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 8,
+                                fontWeight: FontWeight.bold,
+                              ),
+                              textAlign: TextAlign.center,
+                            ),
+                          ),
                         ),
-                      ),
-                      SizedBox(height: 4),
-                      Text(
-                        'Get 20% off on all\npremium products',
-                        style: TextStyle(color: Colors.white, fontSize: 14),
-                      ),
                     ],
                   ),
+                ],
+              ),
+            ),
+
+            // Advertisement Box
+            Container(
+              width: double.infinity,
+              height: 120,
+              margin: EdgeInsets.only(bottom: 16),
+              decoration: BoxDecoration(
+                gradient: LinearGradient(
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                  colors: [Color(0xFF4DB6AC), primaryGreen],
                 ),
-                Positioned(
-                  right: 16,
-                  bottom: 16,
-                  child: GestureDetector(
-                    onTap: () {
-                      setState(() {
-                        _selectedFilter = 'Premium';
-                        _selectedCategory = 'Premium';
-                        _selectedProductType = 'Knot Bag';
-                      });
-                    },
-                    child: Container(
-                      padding: EdgeInsets.symmetric(
-                        horizontal: 16,
-                        vertical: 8,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        'Shop Now',
-                        style: TextStyle(
-                          color: Color(0xFF00796B),
-                          fontWeight: FontWeight.bold,
+                borderRadius: BorderRadius.circular(12),
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black26,
+                    blurRadius: 6,
+                    offset: Offset(0, 3),
+                  ),
+                ],
+              ),
+              child: Stack(
+                children: [
+                  Positioned(
+                    left: 16,
+                    top: 16,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Discover More',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 20,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'Browse our website for more\ninteresting eco-friendly products',
+                          style: TextStyle(color: Colors.white, fontSize: 14),
+                        ),
+                      ],
+                    ),
+                  ),
+                  Positioned(
+                    right: 16,
+                    bottom: 16,
+                    child: GestureDetector(
+                      onTap: () async {
+                        final url = Uri.parse(
+                          'https://www.instagram.com/ecofab_wastetowealth?igsh=bXRud3RIMzlyMng1',
+                        );
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(
+                            url,
+                            mode: LaunchMode.externalApplication,
+                          );
+                        }
+                      },
+                      child: Container(
+                        padding: EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 8,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(20),
+                        ),
+                        child: Text(
+                          'Visit Website',
+                          style: TextStyle(
+                            color: Color(0xFF00796B),
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ),
                     ),
                   ),
-                ),
-              ],
-            ),
-          ),
-
-          // Filter Chips with better scrollable design
-          Container(
-            height: 60,
-            margin: EdgeInsets.only(bottom: 16),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(
-                  'Collections',
-                  style: TextStyle(
-                    fontSize: 16,
-                    fontWeight: FontWeight.bold,
-                    color: Colors.grey[700],
-                  ),
-                ),
-                SizedBox(height: 8),
-                Expanded(
-                  child: ListView(
-                    scrollDirection: Axis.horizontal,
-                    children: _filters.asMap().entries.map((entry) {
-                      final filter = entry.value;
-                      final isFirst = entry.key == 0;
-                      final isLast = entry.key == _filters.length - 1;
-
-                      return Container(
-                        margin: EdgeInsets.only(
-                          left: isFirst ? 0 : 4,
-                          right: isLast ? 0 : 4,
-                        ),
-                        child: FilterChip(
-                          label: Text(filter),
-                          selected: _selectedFilter == filter,
-                          onSelected: (bool selected) {
-                            setState(() {
-                              _selectedFilter = filter;
-                              if (filter != 'All Collection' &&
-                                  filter != 'Hot Selling') {
-                                _selectedCategory = filter;
-                                // Set first product type as default when category changes
-                                if (_productTypes[_selectedCategory] != null &&
-                                    _productTypes[_selectedCategory]!
-                                        .isNotEmpty) {
-                                  _selectedProductType =
-                                      _productTypes[_selectedCategory]!.first;
-                                }
-                              } else {
-                                // For All Collection or Hot Selling, set first available product type
-                                _selectedProductType =
-                                    _productTypes['Basic']!.first;
-                              }
-                            });
-                          },
-                          selectedColor: primaryGreen,
-                          checkmarkColor: Colors.white,
-                          labelStyle: TextStyle(
-                            color: _selectedFilter == filter
-                                ? Colors.white
-                                : Colors.grey[700],
-                            fontWeight: FontWeight.w500,
-                          ),
-                          backgroundColor: Colors.grey[200],
-                          shape: StadiumBorder(
-                            side: BorderSide(
-                              color: _selectedFilter == filter
-                                  ? primaryGreen
-                                  : Colors.grey[300]!,
-                              width: 1,
-                            ),
-                          ),
-                        ),
-                      );
-                    }).toList(),
-                  ),
-                ),
-              ],
-            ),
-          ),
-
-          // Products Section
-          Row(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Left Expanded - Product Types
-              Expanded(
-                flex: 1,
-                child: Container(
-                  decoration: BoxDecoration(
-                    color: Colors.grey[50],
-                    borderRadius: BorderRadius.circular(12),
-                    border: Border.all(color: Colors.grey[300]!),
-                  ),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: _buildProductTypesList(),
-                  ),
-                ),
+                ],
               ),
+            ),
 
-              SizedBox(width: 16),
+            // Filter Chips with better scrollable design
+            Container(
+              margin: EdgeInsets.only(bottom: 16),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    'Collections',
+                    style: TextStyle(
+                      fontSize: 16,
+                      fontWeight: FontWeight.bold,
+                      color: Colors.grey[700],
+                    ),
+                  ),
+                  SizedBox(height: 12),
+                  SizedBox(
+                    height: 40,
+                    child: ListView(
+                      scrollDirection: Axis.horizontal,
+                      children: _filters.asMap().entries.map((entry) {
+                        final filter = entry.value;
+                        final isFirst = entry.key == 0;
+                        final isLast = entry.key == _filters.length - 1;
 
-              // Right Expanded - Product Cards
-              Expanded(flex: 2, child: _buildProductCards()),
-            ],
-          ),
-        ],
+                        return Container(
+                          margin: EdgeInsets.only(
+                            left: isFirst ? 0 : 6,
+                            right: isLast ? 0 : 6,
+                          ),
+                          child: FilterChip(
+                            label: Text(filter),
+                            selected: _selectedFilter == filter,
+                            onSelected: (bool selected) {
+                              setState(() {
+                                _selectedFilter = filter;
+                                if (filter != 'All Collection' &&
+                                    filter != 'Hot Selling') {
+                                  _selectedCategory = filter;
+                                  // Set first product type as default when category changes
+                                  if (_productTypes[_selectedCategory] !=
+                                          null &&
+                                      _productTypes[_selectedCategory]!
+                                          .isNotEmpty) {
+                                    _selectedProductType =
+                                        _productTypes[_selectedCategory]!.first;
+                                  }
+                                } else {
+                                  // For All Collection or Hot Selling, set first available product type
+                                  _selectedProductType =
+                                      _productTypes['Basic']!.first;
+                                }
+                              });
+                            },
+                            selectedColor: primaryGreen,
+                            checkmarkColor: Colors.white,
+                            labelStyle: TextStyle(
+                              color: _selectedFilter == filter
+                                  ? Colors.white
+                                  : Colors.grey[700],
+                              fontWeight: FontWeight.w500,
+                              fontSize: 14,
+                            ),
+                            labelPadding: EdgeInsets.symmetric(
+                              horizontal: 12,
+                              vertical: 0,
+                            ),
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 4,
+                              vertical: 0,
+                            ),
+                            backgroundColor: Colors.grey[200],
+                            shape: StadiumBorder(
+                              side: BorderSide(
+                                color: _selectedFilter == filter
+                                    ? primaryGreen
+                                    : Colors.grey[300]!,
+                                width: 1.5,
+                              ),
+                            ),
+                            elevation: _selectedFilter == filter ? 2 : 0,
+                            pressElevation: 4,
+                          ),
+                        );
+                      }).toList(),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+
+            // Products Section - Now takes remaining space
+            Expanded(
+              child: Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  // Left - Product Types (scrollable in its own container)
+                  Container(
+                    width: 120,
+                    decoration: BoxDecoration(
+                      color: Colors.grey[50],
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.grey[300]!),
+                    ),
+                    child: SingleChildScrollView(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: _buildProductTypesList(),
+                      ),
+                    ),
+                  ),
+
+                  SizedBox(width: 12),
+
+                  // Right - Product Cards (scrollable in its own container)
+                  Expanded(
+                    child: Container(
+                      // Invisible container - no background, border, or shadow
+                      child: SingleChildScrollView(child: _buildProductCards()),
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ],
+        ),
       ),
     );
   }
@@ -424,7 +453,7 @@ class _GuestShopState extends State<GuestShop>
         },
         child: Container(
           width: double.infinity,
-          padding: EdgeInsets.symmetric(horizontal: 16, vertical: 16),
+          padding: EdgeInsets.symmetric(horizontal: 10, vertical: 12),
           decoration: BoxDecoration(
             color: isSelected
                 ? primaryGreen.withOpacity(0.1)
@@ -462,94 +491,494 @@ class _GuestShopState extends State<GuestShop>
     // Sample product data - in real app, this would come from your data source
     List<Map<String, dynamic>> products = [
       {
-        'name': 'Eco Scrunchies',
-        'price': 12.99,
+        'name': 'Scrunchies - Standard',
+        'price': 3.00,
         'category': 'Basic',
         'type': 'Scrunchies',
-        'image': 'assets/scrunchies.jpg',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/STANDARD_SCRUNCHIES/scrunchies_standard1.jpg',
       },
       {
-        'name': 'Recycled Keychain',
-        'price': 8.99,
+        'name': 'Scrunchies - Standard',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/STANDARD_SCRUNCHIES/scrunchies_standard2.jpg',
+      },
+      {
+        'name': 'Scrunchies - Standard',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/STANDARD_SCRUNCHIES/scrunchies_standard3.jpg',
+      },
+      {
+        'name': 'Scrunchies - Standard',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/STANDARD_SCRUNCHIES/scrunchies_standard4.jpg',
+      },
+      {
+        'name': 'Scrunchies - Standard',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/STANDARD_SCRUNCHIES/scrunchies_standard5.jpg',
+      },
+      {
+        'name': 'Scrunchies - Standard',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/STANDARD_SCRUNCHIES/scrunchies_standard6.jpg',
+      },
+      {
+        'name': 'Scrunchies - Standard',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/STANDARD_SCRUNCHIES/scrunchies_standard7.jpg',
+      },
+      {
+        'name': 'Scrunchies - Standard',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/STANDARD_SCRUNCHIES/scrunchies_standard8.jpg',
+      },
+      {
+        'name': 'Scrunchies - Standard',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/STANDARD_SCRUNCHIES/scrunchies_standard9.jpg',
+      },
+      {
+        'name': 'Scrunchies - Standard',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/STANDARD_SCRUNCHIES/scrunchies_standard10.jpg',
+      },
+      {
+        'name': 'Scrunchies - Standard',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/STANDARD_SCRUNCHIES/scrunchies_standard11.jpg',
+      },
+      {
+        'name': 'Scrunchies - Deluxe',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe1.jpg',
+      },
+      {
+        'name': 'Scrunchies - Deluxe',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe2.jpg',
+      },
+      {
+        'name': 'Scrunchies - Deluxe',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe3.jpg',
+      },
+      {
+        'name': 'Scrunchies - Deluxe',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe4.jpg',
+      },
+      {
+        'name': 'Scrunchies - Deluxe',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe5.jpg',
+      },
+      {
+        'name': 'Scrunchies - Deluxe',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe6.jpg',
+      },
+      {
+        'name': 'Scrunchies - Deluxe',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe7.jpg',
+      },
+      {
+        'name': 'Scrunchies - Deluxe',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe8.jpg',
+      },
+      {
+        'name': 'Scrunchies - Deluxe',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe9.jpg',
+      },
+      {
+        'name': 'Scrunchies - Deluxe',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Scrunchies',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/SCRUNCHIES/DELUXE_SCRUNCHIES/scrunchies_deluxe10.jpg',
+      },
+      {
+        'name': 'Deluxe Wrist Strap',
+        'price': 5,
         'category': 'Basic',
         'type': 'Keychain',
-        'image': 'assets/keychain.jpg',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/DELUXE_WRIST_STRAP/deluxe_wrist_strap1.jpg',
       },
       {
-        'name': 'Medium String Bag',
-        'price': 24.99,
+        'name': 'Deluxe Wrist Strap',
+        'price': 5,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/DELUXE_WRIST_STRAP/deluxe_wrist_strap2.jpg',
+      },
+      {
+        'name': 'Deluxe Wrist Strap',
+        'price': 5,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/DELUXE_WRIST_STRAP/deluxe_wrist_strap3.jpg',
+      },
+      {
+        'name': 'Deluxe Wrist Strap',
+        'price': 5,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/DELUXE_WRIST_STRAP/deluxe_wrist_strap4.jpg',
+      },
+      {
+        'name': 'Deluxe Wrist Strap',
+        'price': 5,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/DELUXE_WRIST_STRAP/deluxe_wrist_strap5.jpg',
+      },
+      {
+        'name': 'Jean Wrist Strap',
+        'price': 5,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/JEAN_WRIST_STRAP/jean_wrist_strap1.jpg',
+      },
+      {
+        'name': 'Jean Wrist Strap',
+        'price': 5,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/JEAN_WRIST_STRAP/jean_wrist_strap2.jpg',
+      },
+      {
+        'name': 'Jean Wrist Strap',
+        'price': 5,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/JEAN_WRIST_STRAP/jean_wrist_strap3.jpg',
+      },
+      {
+        'name': 'Premium Wrist Strap',
+        'price': 5,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/PREMIUM_WRIST_STRAP/premium_wrist_strap1.jpg',
+      },
+      {
+        'name': 'Premium Wrist Strap',
+        'price': 5,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/PREMIUM_WRIST_STRAP/premium_wrist_strap2.jpg',
+      },
+      {
+        'name': 'Premium Wrist Strap',
+        'price': 5,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/PREMIUM_WRIST_STRAP/premium_wrist_strap3.jpg',
+      },
+      {
+        'name': 'Premium Wrist Strap',
+        'price': 5,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/PREMIUM_WRIST_STRAP/premium_wrist_strap4.jpg',
+      },
+      {
+        'name': 'Premium Wrist Strap',
+        'price': 5,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/PREMIUM_WRIST_STRAP/premium_wrist_strap5.jpg',
+      },
+      {
+        'name': 'Standard Wrist Strap',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/STANDARD_WRIST_STRAP/standard_wrist_strap1.jpg',
+      },
+      {
+        'name': 'Standard Wrist Strap',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/STANDARD_WRIST_STRAP/standard_wrist_strap2.jpg',
+      },
+      {
+        'name': 'Standard Wrist Strap',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/STANDARD_WRIST_STRAP/standard_wrist_strap3.jpg',
+      },
+      {
+        'name': 'Standard Wrist Strap',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/STANDARD_WRIST_STRAP/standard_wrist_strap4.jpg',
+      },
+      {
+        'name': 'Standard Wrist Strap',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/STANDARD_WRIST_STRAP/standard_wrist_strap5.jpg',
+      },
+      {
+        'name': 'Standard Wrist Strap',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/STANDARD_WRIST_STRAP/standard_wrist_strap6.jpg',
+      },
+      {
+        'name': 'Standard Wrist Strap',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/STANDARD_WRIST_STRAP/standard_wrist_strap7.jpg',
+      },
+      {
+        'name': 'Standard Wrist Strap',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/STANDARD_WRIST_STRAP/standard_wrist_strap8.jpg',
+      },
+      {
+        'name': 'Standard Wrist Strap',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/STANDARD_WRIST_STRAP/standard_wrist_strap9.jpg',
+      },
+      {
+        'name': 'Standard Wrist Strap',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/STANDARD_WRIST_STRAP/standard_wrist_strap10.jpg',
+      },
+      {
+        'name': 'Standard Wrist Strap',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/STANDARD_WRIST_STRAP/standard_wrist_strap11.jpg',
+      },
+      {
+        'name': 'Standard Wrist Strap',
+        'price': 3.00,
+        'category': 'Basic',
+        'type': 'Keychain',
+        'image':
+            'assets/images/PRODUCT/BASIC_COLLECTION/WRIST_STRAP/STANDARD_WRIST_STRAP/standard_wrist_strap12.jpg',
+      },
+      {
+        'name': 'Totebag',
+        'price': 15.00,
         'category': 'Standard',
-        'type': 'Medium String Bag',
-        'image': 'assets/string_bag.jpg',
+        'type': 'Tote Bag',
+        'image':
+            'assets/images/PRODUCT/STANDARD_COLLECTION/TOTEBAG/totebag1.jpg',
       },
       {
-        'name': 'Large String Bag',
-        'price': 29.99,
+        'name': 'Totebag',
+        'price': 15.00,
         'category': 'Standard',
-        'type': 'Large String Bag',
-        'image': 'assets/large_string_bag.jpg',
+        'type': 'Tote Bag',
+        'image':
+            'assets/images/PRODUCT/STANDARD_COLLECTION/TOTEBAG/totebag2.jpg',
       },
       {
-        'name': 'Premium Knot Bag',
-        'price': 45.99,
+        'name': 'Totebag',
+        'price': 15.00,
+        'category': 'Standard',
+        'type': 'Tote Bag',
+        'image':
+            'assets/images/PRODUCT/STANDARD_COLLECTION/TOTEBAG/totebag3.jpg',
+      },
+      {
+        'name': 'Totebag',
+        'price': 15.00,
+        'category': 'Standard',
+        'type': 'Tote Bag',
+        'image':
+            'assets/images/PRODUCT/STANDARD_COLLECTION/TOTEBAG/totebag4.jpg',
+      },
+      {
+        'name': 'Knot Bag',
+        'price': 25.00,
         'category': 'Premium',
         'type': 'Knot Bag',
-        'image': 'assets/knot_bag.jpg',
+        'image': 'assets/images/PRODUCT/PREMIUM_COLLECTION/premium1.jpg',
       },
       {
-        'name': 'Batwing Outwear',
-        'price': 65.99,
+        'name': 'Knot Bag',
+        'price': 25.00,
         'category': 'Premium',
-        'type': 'Batwing Outwear',
-        'image': 'assets/batwing.jpg',
+        'type': 'Knot Bag',
+        'image': 'assets/images/PRODUCT/PREMIUM_COLLECTION/premium2.jpg',
       },
       {
-        'name': 'Eco-tote Bag',
-        'price': 32.99,
-        'category': 'Corporate',
-        'type': 'Ecotote',
-        'image': 'assets/ecotote.jpg',
+        'name': 'Knot Bag',
+        'price': 25.00,
+        'category': 'Premium',
+        'type': 'Knot Bag',
+        'image': 'assets/images/PRODUCT/PREMIUM_COLLECTION/premium3.jpg',
       },
       {
-        'name': 'Corporate Lanyard',
-        'price': 15.99,
+        'name': 'Lanyard',
+        'price': 15.00,
         'category': 'Corporate',
         'type': 'Lanyard',
-        'image': 'assets/lanyard.jpg',
+        'image': 'assets/images/PRODUCT/CORPORATE_ORDERS/corporate1.jpg',
+      },
+      {
+        'name': 'Lanyard',
+        'price': 15.00,
+        'category': 'Corporate',
+        'type': 'Lanyard',
+        'image': 'assets/images/PRODUCT/CORPORATE_ORDERS/corporate2.jpg',
+      },
+      {
+        'name': 'Lanyard',
+        'price': 15.00,
+        'category': 'Corporate',
+        'type': 'Lanyard',
+        'image': 'assets/images/PRODUCT/CORPORATE_ORDERS/corporate3.jpg',
       },
     ];
 
-    // Filter products based on selected filter and product type
+    // Filter products based on selected filter, product type, and search query
     List<Map<String, dynamic>> filteredProducts = products.where((product) {
-      // First filter by collection
-      if (_selectedFilter == 'All Collection') {
-        // Then filter by product type if one is selected
-        return _selectedProductType == product['type'];
+      // If search query is active, search across all products
+      if (_searchQuery.isNotEmpty) {
+        if (!product['name'].toLowerCase().contains(
+          _searchQuery.toLowerCase(),
+        )) {
+          return false;
+        }
+        // When searching, ignore product type filter and only filter by category
+        if (_selectedFilter == 'All Collection') {
+          return true;
+        }
+        if (_selectedFilter == 'Hot Selling') {
+          return true;
+        }
+        return product['category'] == _selectedFilter;
       }
-      if (_selectedFilter == 'Hot Selling') {
-        // Add hot selling logic - for demo, just return some products
+
+      // When not searching, apply product type filter
+      // Always filter by the selected product type first
+      if (_selectedProductType != product['type']) {
+        return false;
+      }
+
+      // Then filter by collection/category
+      if (_selectedFilter == 'All Collection') {
         return true;
       }
-      // Filter by category and product type
-      return product['category'] == _selectedFilter &&
-          (_selectedProductType == product['type'] ||
-              _selectedFilter == 'All Collection');
+      if (_selectedFilter == 'Hot Selling') {
+        return true;
+      }
+      // Filter by specific category
+      return product['category'] == _selectedFilter;
     }).toList();
 
-    // If no products match the specific type, show all from the category
-    if (filteredProducts.isEmpty &&
-        _selectedFilter != 'All Collection' &&
-        _selectedFilter != 'Hot Selling') {
-      filteredProducts = products
-          .where((product) => product['category'] == _selectedFilter)
-          .toList();
-    }
+    // Sort products by name to ensure consistent display
+    filteredProducts.sort((a, b) => a['name'].compareTo(b['name']));
 
     return Column(
       children: [
         if (_selectedProductType.isNotEmpty)
-          Padding(
-            padding: EdgeInsets.only(bottom: 12),
+          Container(
+            padding: EdgeInsets.only(bottom: 16),
+            alignment: Alignment.centerLeft,
             child: Text(
               'Products: $_selectedProductType',
               style: TextStyle(
@@ -572,82 +1001,138 @@ class _GuestShopState extends State<GuestShop>
                 borderRadius: BorderRadius.circular(12),
                 boxShadow: [
                   BoxShadow(
-                    color: Colors.black12,
-                    blurRadius: 4,
+                    color: Colors.black.withOpacity(0.08),
+                    blurRadius: 8,
                     offset: Offset(0, 2),
                   ),
                 ],
+                border: Border.all(color: Colors.grey[200]!, width: 1),
               ),
-              child: Row(
-                children: [
-                  // Product Image
-                  Container(
-                    width: 80,
-                    height: 80,
-                    margin: EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.grey[200],
-                      borderRadius: BorderRadius.circular(8),
+              child: Padding(
+                padding: EdgeInsets.all(12),
+                child: Row(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    // Product Image - Reduced size for mobile
+                    Container(
+                      width: 80,
+                      height: 80,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[100],
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: ClipRRect(
+                        borderRadius: BorderRadius.circular(8),
+                        child: Image.asset(
+                          product['image'],
+                          width: 80,
+                          height: 80,
+                          fit: BoxFit.cover,
+                          errorBuilder: (context, error, stackTrace) {
+                            // Fallback to placeholder icon if image fails to load
+                            return Center(
+                              child: Icon(
+                                Icons.shopping_bag_outlined,
+                                color: primaryGreen.withOpacity(0.5),
+                                size: 36,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                     ),
-                    child: Icon(Icons.shopping_bag, color: Colors.grey[400]),
-                  ),
-
-                  // Product Details
-                  Expanded(
-                    child: Padding(
-                      padding: EdgeInsets.all(12),
+                    SizedBox(width: 12),
+                    // Product Details - More space for content
+                    Expanded(
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
                             product['name'],
                             style: TextStyle(
                               fontWeight: FontWeight.bold,
-                              fontSize: 16,
+                              fontSize: 14,
+                              color: Colors.grey[800],
+                              height: 1.3,
                             ),
+                            maxLines: 2,
+                            overflow: TextOverflow.ellipsis,
                           ),
-                          SizedBox(height: 4),
-                          Text(
-                            product['type'],
-                            style: TextStyle(
-                              color: Colors.grey[600],
-                              fontSize: 12,
+                          SizedBox(height: 6),
+                          Container(
+                            padding: EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 3,
+                            ),
+                            decoration: BoxDecoration(
+                              color: primaryGreen.withOpacity(0.1),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              product['type'],
+                              style: TextStyle(
+                                color: primaryGreen,
+                                fontSize: 10,
+                                fontWeight: FontWeight.w600,
+                              ),
                             ),
                           ),
                           SizedBox(height: 8),
-                          Text(
-                            'RM${product['price'].toStringAsFixed(2)}',
-                            style: TextStyle(
-                              fontWeight: FontWeight.bold,
-                              color: primaryGreen,
-                              fontSize: 16,
-                            ),
+                          Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                            children: [
+                              Text(
+                                'RM ${product['price'].toStringAsFixed(2)}',
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color: primaryGreen,
+                                  fontSize: 16,
+                                ),
+                              ),
+                              // Add to Cart Button - Inline with price
+                              Container(
+                                decoration: BoxDecoration(
+                                  color: primaryGreen,
+                                  borderRadius: BorderRadius.circular(8),
+                                ),
+                                child: IconButton(
+                                  icon: Icon(Icons.add_shopping_cart),
+                                  color: Colors.white,
+                                  iconSize: 20,
+                                  padding: EdgeInsets.all(8),
+                                  constraints: BoxConstraints(
+                                    minWidth: 40,
+                                    minHeight: 40,
+                                  ),
+                                  onPressed: () {
+                                    // Add to cart functionality
+                                    CartService().addItem(
+                                      CartItem(
+                                        name: product['name'],
+                                        type: product['type'],
+                                        price: product['price'],
+                                      ),
+                                    );
+
+                                    // Show confirmation snackbar
+                                    _showAddToCartSnackbar(
+                                      product['name'],
+                                      context,
+                                    );
+
+                                    // Update UI to reflect cart changes
+                                    setState(() {});
+                                  },
+                                ),
+                              ),
+                            ],
                           ),
                         ],
                       ),
                     ),
-                  ),
-
-                  // Add to Cart Button
-                  Padding(
-                    padding: EdgeInsets.all(12),
-                    child: IconButton(
-                      icon: Icon(Icons.add_shopping_cart),
-                      color: primaryGreen,
-                      onPressed: () {
-                        Navigator.pushAndRemoveUntil(
-                          context,
-                          MaterialPageRoute(
-                            builder: (context) {
-                              return LoginPage();
-                            },
-                          ),
-                          (route) => false,
-                        );
-                      },
-                    ),
-                  ),
-                ],
+                  ],
+                ),
               ),
             );
           },

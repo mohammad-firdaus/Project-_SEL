@@ -27,6 +27,7 @@ class GuestWidgetTree extends StatelessWidget {
           fontSize: 20,
           fontWeight: FontWeight.bold,
           color: Colors.white,
+          fontFamily: 'MomoSignature',
         ),
         centerTitle: false,
         backgroundColor: Color(0xFF42B642),

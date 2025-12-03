@@ -293,11 +293,20 @@ class WasteToWealthInfoPage extends StatelessWidget {
 
               SizedBox(height: 12),
 
-              _contactRow(Icons.email_outlined, 'contact@wastetowealth.my'),
-              _contactRow(Icons.phone_outlined, '+603-9123-4567'),
+              _contactRow(Icons.email_outlined, 'wastetowealth.ecofab@gmail.com'),
+              _contactRow(Icons.phone_outlined, '+60 13-512-7709'),
               _contactRow(
                 Icons.location_on_outlined,
-                '123 Eco St, Kuala Lumpur',
+                'Makmal Hello 1, Aras 1',
+              ),
+              _contactRow2(
+                'Fakulti Ekonomi & Perniagaan,'
+              ),
+              _contactRow2(
+                'Universiti Malaysia Sarawak'
+              ),
+              _contactRow2(
+                '94300 Kota Samarahan, Sarawak'
               ),
 
               SizedBox(height: 24),
@@ -461,7 +470,20 @@ class WasteToWealthInfoPage extends StatelessWidget {
         children: [
           Icon(icon, color: greenColor),
           SizedBox(width: 8),
-          Text(text, style: TextStyle(fontSize: 15)),
+          Text(text, style: TextStyle(fontSize: 15),),
+        ],
+      ),
+    );
+  }
+
+  Widget _contactRow2(String text1,) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 8),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          SizedBox(width: 8),
+          Text(text1, style: TextStyle(fontSize: 15),),
         ],
       ),
     );
