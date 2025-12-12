@@ -18,7 +18,6 @@ class _SignUpPageState extends State<SignUpPage> {
 
   final TextEditingController fullNameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
-  final TextEditingController phoneController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
   final TextEditingController confirmPasswordController =
       TextEditingController();
@@ -45,7 +44,6 @@ class _SignUpPageState extends State<SignUpPage> {
   void dispose() {
     fullNameController.dispose();
     emailController.dispose();
-    phoneController.dispose();
     passwordController.dispose();
     confirmPasswordController.dispose();
     super.dispose();
@@ -295,33 +293,6 @@ class _SignUpPageState extends State<SignUpPage> {
                                 }
                                 return null;
                               },
-                            ),
-
-                            SizedBox(height: 15),
-
-                            // Phone Number
-                            Text(
-                              "Phone Number",
-                              style: TextStyle(
-                                fontWeight: FontWeight.w600,
-                                fontSize: 14,
-                              ),
-                            ),
-                            SizedBox(height: 5),
-                            TextFormField(
-                              controller: phoneController,
-                              keyboardType: TextInputType.phone,
-                              decoration: InputDecoration(
-                                hintText: "Enter your phone number",
-                                prefixIcon: Icon(Icons.phone_outlined),
-                                border: OutlineInputBorder(
-                                  borderRadius: BorderRadius.circular(12),
-                                ),
-                                contentPadding: EdgeInsets.symmetric(
-                                  vertical: 14,
-                                  horizontal: 12,
-                                ),
-                              ),
                             ),
 
                             SizedBox(height: 15),

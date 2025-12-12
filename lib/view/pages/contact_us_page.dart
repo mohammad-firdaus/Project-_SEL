@@ -164,9 +164,9 @@ class ContactUsPage extends StatelessWidget {
                               'wastetowealth.ecofab@gmail.com', // The email address you want to send to
                           query: _encodeQueryParameters(<String, String>{
                             'subject':
-                                'Example Subject', // Optional: pre-filled subject
+                                '', // Optional: pre-filled subject
                             'body':
-                                'Example body content', // Optional: pre-filled body
+                                '', // Optional: pre-filled body
                           }),
                         );
 
