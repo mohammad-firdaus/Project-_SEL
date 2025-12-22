@@ -17,6 +17,30 @@ class CartItem {
   });
 }
 
+class CorporateOrderDetails {
+  final String companyName;
+  final String email;
+  final String contactNumber;
+  final String dateNeeded;
+  final String shippingAddress;
+  final String itemDescription;
+  final String material;
+  final int quantity;
+  final String remarks;
+
+  CorporateOrderDetails({
+    required this.companyName,
+    required this.email,
+    required this.contactNumber,
+    required this.dateNeeded,
+    required this.shippingAddress,
+    required this.itemDescription,
+    required this.material,
+    required this.quantity,
+    required this.remarks,
+  });
+}
+
 // Cart service to manage cart state
 class CartService {
   static final CartService _instance = CartService._internal();
@@ -134,6 +158,149 @@ class _CustomerShopState extends State<CustomerShop>
     );
     // Refresh UI when returning from cart page
     setState(() {});
+  }
+
+  void _showCorporateOrderForm(
+    BuildContext context,
+    Map<String, dynamic> product,
+  ) {
+    final _formKey = GlobalKey<FormState>();
+
+    final companyCtrl = TextEditingController();
+    final emailCtrl = TextEditingController();
+    final contactCtrl = TextEditingController();
+    final dateCtrl = TextEditingController();
+    final addressCtrl = TextEditingController();
+    final descCtrl = TextEditingController();
+    final materialCtrl = TextEditingController();
+    final qtyCtrl = TextEditingController(text: '1');
+    final remarksCtrl = TextEditingController();
+
+    showDialog(
+      context: context,
+      builder: (context) {
+        return Dialog(
+          insetPadding: EdgeInsets.all(16),
+          child: SingleChildScrollView(
+            padding: EdgeInsets.all(16),
+            child: Form(
+              key: _formKey,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Container(
+                    decoration: BoxDecoration(
+                      color: Colors.green[50],
+                    ),
+                    child: Center(
+                      child: Text(
+                        'Corporate Order Request',  
+                        style: TextStyle(
+                          fontSize: 18,
+                          fontWeight: FontWeight.bold,
+                          color: primaryGreen,
+                        ),
+                      ),
+                    ),
+                  ),
+                  SizedBox(height: 16),
+
+                  _buildTextField(companyCtrl, 'Company Name'),
+                  _buildTextField(
+                    emailCtrl,
+                    'Email Address',
+                    keyboard: TextInputType.emailAddress,
+                  ),
+                  _buildTextField(
+                    contactCtrl,
+                    'Contact Number',
+                    keyboard: TextInputType.phone,
+                  ),
+                  _buildTextField(dateCtrl, 'Date Needed (DD/MM/YYYY)'),
+                  _buildTextField(addressCtrl, 'Shipping Address', maxLines: 2),
+                  _buildTextField(descCtrl, 'Item Description'),
+                  _buildTextField(materialCtrl, 'Material'),
+                  _buildTextField(
+                    qtyCtrl,
+                    'Quantity',
+                    keyboard: TextInputType.number,
+                  ),
+                  _buildTextField(
+                    remarksCtrl,
+                    'Additional Remarks',
+                    maxLines: 2,
+                  ),
+
+                  SizedBox(height: 20),
+
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      TextButton(
+                        onPressed: () => Navigator.pop(context),
+                        child: Text('Cancel'),
+                      ),
+                      SizedBox(width: 8),
+                      ElevatedButton(
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: primaryGreen,
+                        ),
+                        onPressed: () {
+                          if (_formKey.currentState!.validate()) {
+                            // Add to cart as corporate item
+                            CartService().addItem(
+                              CartItem(
+                                name: product['name'],
+                                type: 'Corporate Order',
+                                price: product['price'],
+                                quantity: int.parse(qtyCtrl.text),
+                              ),
+                            );
+
+                            Navigator.pop(context);
+
+                            _showAddToCartSnackbar(
+                              'Corporate order submitted',
+                              context,
+                            );
+
+                            setState(() {});
+                          }
+                        },
+                        child: Text('Submit'),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildTextField(
+    TextEditingController controller,
+    String label, {
+    int maxLines = 1,
+    TextInputType keyboard = TextInputType.text,
+  }) {
+    return Padding(
+      padding: EdgeInsets.only(bottom: 12),
+      child: TextFormField(
+        controller: controller,
+        maxLines: maxLines,
+        keyboardType: keyboard,
+        validator: (value) =>
+            value == null || value.isEmpty ? 'Required' : null,
+        decoration: InputDecoration(
+          labelText: label,
+          border: OutlineInputBorder(borderRadius: BorderRadius.circular(8)),
+        ),
+      ),
+    );
   }
 
   @override
@@ -1106,23 +1273,23 @@ class _CustomerShopState extends State<CustomerShop>
                                     minHeight: 40,
                                   ),
                                   onPressed: () {
-                                    // Add to cart functionality
-                                    CartService().addItem(
-                                      CartItem(
-                                        name: product['name'],
-                                        type: product['type'],
-                                        price: product['price'],
-                                      ),
-                                    );
+                                    if (product['category'] == 'Corporate') {
+                                      _showCorporateOrderForm(context, product);
+                                    } else {
+                                      CartService().addItem(
+                                        CartItem(
+                                          name: product['name'],
+                                          type: product['type'],
+                                          price: product['price'],
+                                        ),
+                                      );
 
-                                    // Show confirmation snackbar
-                                    _showAddToCartSnackbar(
-                                      product['name'],
-                                      context,
-                                    );
-
-                                    // Update UI to reflect cart changes
-                                    setState(() {});
+                                      _showAddToCartSnackbar(
+                                        product['name'],
+                                        context,
+                                      );
+                                      setState(() {});
+                                    }
                                   },
                                 ),
                               ),

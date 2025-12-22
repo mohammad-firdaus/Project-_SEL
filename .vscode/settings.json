@@ -1,3 +1,4 @@
 {
-    "cmake.sourceDirectory": "C:/FlutterProjects/Project _SEL/windows"
+    "cmake.sourceDirectory": "C:/FlutterProjects/Project _SEL/windows",
+    "java.configuration.updateBuildConfiguration": "interactive"
 }
