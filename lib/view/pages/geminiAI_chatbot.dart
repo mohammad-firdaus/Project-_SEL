@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class GeminiaiChatbot extends StatelessWidget {
   const GeminiaiChatbot({super.key});
@@ -56,7 +57,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     const String apiKey = "AIzaSyA_n7ECYbbZ7QYxtZfGrCxrBxLQUyI8sow";
 
     final url = Uri.parse(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=$apiKey",
     );
 
     try {
@@ -194,14 +195,30 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     ),
                   ],
                 ),
-                child: Text(
-                  text,
-                  style: TextStyle(
-                    color: isUser ? Colors.white : Colors.black87,
-                    fontSize: 15,
-                    height: 1.4,
-                  ),
-                ),
+                child: isUser
+                    ? Text(
+                        // Keep standard Text for the User (users usually don't type Markdown)
+                        text,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 15,
+                          height: 1.4,
+                        ),
+                      )
+                    : MarkdownBody(
+                        // Use Markdown for the AI Bot
+                        data: text,
+                        styleSheet: MarkdownStyleSheet(
+                          p: TextStyle(
+                            color: Colors.black87,
+                            fontSize: 15,
+                            height: 1.4,
+                          ),
+                          // This ensures the bold text is still readable
+                          strong: TextStyle(fontWeight: FontWeight.bold),
+                          listBullet: TextStyle(color: darkGreen),
+                        ),
+                      ),
               ),
               if (timestamp != null)
                 Padding(

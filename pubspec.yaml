@@ -43,6 +43,7 @@ dependencies:
   flutter_rating_bar: ^4.0.1
   syncfusion_flutter_pdfviewer: ^28.1.33
   flutter_launcher_icons: ^0.14.4
+  flutter_markdown: ^0.7.7+1
 
 dev_dependencies:
   flutter_test:
