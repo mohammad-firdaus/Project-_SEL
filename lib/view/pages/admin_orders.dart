@@ -6,6 +6,9 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:project_sel/view/pages/admin_corporate_order_page.dart';
+import '../../services/order_service.dart';
+import '../../models/order_model.dart';
+import 'package:firebase_database/firebase_database.dart';
 
 class AdminOrders extends StatefulWidget {
   const AdminOrders({super.key});
@@ -254,148 +257,175 @@ class _AdminOrdersState extends State<AdminOrders> {
   }
 
   @override
+  @override
   Widget build(BuildContext context) {
-    return Stack(
-      children: [
-        Container(
-          height: MediaQuery.of(context).size.height * 0.1,
-          color: greenColor,
-        ),
-        Column(
+    return StreamBuilder(
+      // 1. Listen to the "orders" path in Firebase
+      stream: FirebaseDatabase.instance.ref("orders").onValue,
+      builder: (context, AsyncSnapshot<DatabaseEvent> snapshot) {
+
+        // Handle Loading State
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Scaffold(body: Center(child: CircularProgressIndicator()));
+        }
+
+        // Handle Error State
+        if (snapshot.hasError) {
+          return Scaffold(body: Center(child: Text("Firebase Error: ${snapshot.error}")));
+        }
+
+        // 2. Map Firebase Data to your 'orders' list
+        if (snapshot.hasData && snapshot.data!.snapshot.value != null) {
+          final rawData = snapshot.data!.snapshot.value as Map<dynamic, dynamic>;
+          orders = rawData.entries.map((entry) {
+            return OrderData.fromMap(entry.key, entry.value as Map<dynamic, dynamic>);
+          }).toList();
+        }
+
+        // 3. Apply your Filtering Logic
+        List<OrderData> currentFilteredOrders = orders;
+        if (_selectedStatusFilter != 'All') {
+          currentFilteredOrders = currentFilteredOrders.where((o) => o.status == _selectedStatusFilter).toList();
+        }
+
+        // 4. Return your UI inside the Builder
+        return Stack(
           children: [
-            Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: const [
-                  Row(
-                    children: [
-                      SizedBox(width: 5),
+            Container(
+              height: MediaQuery.of(context).size.height * 0.1,
+              color: greenColor,
+            ),
+            Column(
+              children: [
+                Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: const [
+                      Row(
+                        children: [
+                          SizedBox(width: 5),
+                          Text(
+                            'Order Tracking',
+                            style: TextStyle(
+                              fontSize: 26,
+                              fontWeight: FontWeight.bold,
+                              color: Colors.white,
+                            ),
+                          ),
+                        ],
+                      ),
+                      SizedBox(height: 2),
                       Text(
-                        'Order Tracking',
-                        style: TextStyle(
-                          fontSize: 26,
-                          fontWeight: FontWeight.bold,
-                          color: Colors.white,
-                        ),
+                        'Manage customer orders and shipments',
+                        style: TextStyle(color: Colors.white, fontSize: 14),
                       ),
                     ],
                   ),
-                  SizedBox(height: 2),
-                  Text(
-                    'Manage customer orders and shipments',
-                    style: TextStyle(color: Colors.white, fontSize: 14),
-                  ),
-                ],
-              ),
-            ),
-            Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.all(16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    Container(
-                      width: double.infinity,
-                      padding: const EdgeInsets.symmetric(
-                        vertical: 14,
-                        horizontal: 16,
-                      ),
-                      decoration: BoxDecoration(
-                        color: Colors.white,
-                        borderRadius: BorderRadius.circular(12),
-                        boxShadow: const [
-                          BoxShadow(color: Colors.black12, blurRadius: 6),
-                        ],
-                      ),
-                      child: Row(
-                        mainAxisAlignment: MainAxisAlignment.spaceEvenly,
-                        children: [
-                          _statusCountWidget(
-                            'Preparing',
-                            statusCounts['Preparing'] ?? 0,
-                            Colors.blue,
-                          ),
-                          _statusCountWidget(
-                            'Shipped',
-                            statusCounts['Shipped'] ?? 0,
-                            Colors.purple,
-                          ),
-                          _statusCountWidget(
-                            'Received',
-                            statusCounts['Received'] ?? 0,
-                            Colors.green,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    SingleChildScrollView(
-                      scrollDirection: Axis.horizontal,
-                      child: Wrap(
-                        spacing: 12,
-                        runSpacing: 12,
-                        crossAxisAlignment: WrapCrossAlignment.center,
-                        children: [
-                          _buildFilterChips(
-                            'Filter by Status',
-                            statusFilterOptions,
-                            _selectedStatusFilter,
-                            (val) => setState(() {
-                              _selectedStatusFilter = val!;
-                            }),
-                          ),
-                          _buildFilterChips(
-                            '',
-                            sortFilterOptions,
-                            _selectedSortFilter,
-                            (val) => setState(() {
-                              _selectedSortFilter = val!;
-                            }),
-                            backgroundColor: Colors.grey.shade200,
-                            selectedColor: Colors.black87,
-                            unselectedColor: Colors.grey.shade700,
-                          ),
-                        ],
-                      ),
-                    ),
-                    const SizedBox(height: 16),
-
-                    Center(
-                      child: CorporateOrderRequestCard(pendingRequests: 2),
-                    ),
-
-                    const SizedBox(height: 16),
-                    filteredOrders.isEmpty
-                        ? const Center(child: Text('No orders found.'))
-                        : ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: filteredOrders.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 12),
-                            itemBuilder: (context, index) {
-                              final order = filteredOrders[index];
-                              final isExpanded = _expandedOrders.contains(
-                                order.orderNumber,
-                              );
-                              final isShipExpanded = _shipOrderExpanded
-                                  .contains(order.orderNumber);
-                              return _orderCard(
-                                order,
-                                isExpanded,
-                                isShipExpanded,
-                              );
-                            },
-                          ),
-                  ],
                 ),
-              ),
+                Expanded(
+                  child: SingleChildScrollView(
+                    padding: const EdgeInsets.all(16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: double.infinity,
+                          padding: const EdgeInsets.symmetric(
+                            vertical: 14,
+                            horizontal: 16,
+                          ),
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(12),
+                            boxShadow: const [
+                              BoxShadow(color: Colors.black12, blurRadius: 6),
+                            ],
+                          ),
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                            children: [
+                              _statusCountWidget(
+                                'Preparing',
+                                statusCounts['Preparing'] ?? 0,
+                                Colors.blue,
+                              ),
+                              _statusCountWidget(
+                                'Shipped',
+                                statusCounts['Shipped'] ?? 0,
+                                Colors.purple,
+                              ),
+                              _statusCountWidget(
+                                'Received',
+                                statusCounts['Received'] ?? 0,
+                                Colors.green,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        SingleChildScrollView(
+                          scrollDirection: Axis.horizontal,
+                          child: Wrap(
+                            spacing: 12,
+                            runSpacing: 12,
+                            crossAxisAlignment: WrapCrossAlignment.center,
+                            children: [
+                              _buildFilterChips(
+                                'Filter by Status',
+                                statusFilterOptions,
+                                _selectedStatusFilter,
+                                    (val) => setState(() {
+                                  _selectedStatusFilter = val!;
+                                }),
+                              ),
+                              _buildFilterChips(
+                                '',
+                                sortFilterOptions,
+                                _selectedSortFilter,
+                                    (val) => setState(() {
+                                  _selectedSortFilter = val!;
+                                }),
+                                backgroundColor: Colors.grey.shade200,
+                                selectedColor: Colors.black87,
+                                unselectedColor: Colors.grey.shade700,
+                              ),
+                            ],
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        Center(
+                          child: CorporateOrderRequestCard(pendingRequests: 2),
+                        ),
+                        const SizedBox(height: 16),
+                        currentFilteredOrders.isEmpty
+                            ? const Center(child: Text('No orders found.'))
+                            : ListView.separated(
+                          shrinkWrap: true,
+                          physics: const NeverScrollableScrollPhysics(),
+                          itemCount: currentFilteredOrders.length,
+                          separatorBuilder: (_, __) => const SizedBox(height: 12),
+                          itemBuilder: (context, index) {
+                            final order = currentFilteredOrders[index];
+                            final isExpanded = _expandedOrders.contains(order.orderNumber);
+                            final isShipExpanded = _shipOrderExpanded.contains(order.orderNumber);
+                            return _orderCard(
+                              order,
+                              isExpanded,
+                              isShipExpanded,
+                            );
+                          },
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+              ],
             ),
           ],
-        ),
-      ],
-    );
+        );
+      }, // Closing Builder
+    ); // Closing StreamBuilder
   }
 
   Widget _orderCard(OrderData order, bool isExpanded, bool isShipExpanded) {
@@ -529,312 +559,287 @@ class _AdminOrdersState extends State<AdminOrders> {
                 ),
               ],
             ),
-            if (isExpanded) ...[
-              const Divider(height: 32, thickness: 1.2),
-              const Text(
-                'Customer Details',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
-              const SizedBox(height: 12),
-              if (order.email != null)
-                Row(
-                  children: [
-                    const Icon(Icons.email_outlined, size: 15),
-                    const SizedBox(width: 6),
-                    Expanded(child: Text(order.email!)),
-                  ],
-                ),
-              if (order.phone != null) ...[
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    const Icon(Icons.phone_outlined, size: 15),
-                    const SizedBox(width: 6),
-                    Expanded(child: Text(order.phone!)),
-                  ],
-                ),
-              ],
-              if (order.address != null) ...[
-                const SizedBox(height: 8),
-                Row(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Icon(Icons.location_on_outlined, size: 15),
-                    const SizedBox(width: 6),
-                    Expanded(child: Text(order.address!)),
-                  ],
-                ),
-              ],
-              const SizedBox(height: 18),
-              const Text(
-                'Order Items',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-              ),
-              const SizedBox(height: 12),
-              ...?order.orderItems?.map(
-                (item) => Padding(
-                  padding: const EdgeInsets.only(bottom: 10),
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Flexible(child: Text(item.name)),
-                      Text(
-                        'Qty: ${item.qty}',
-                        style: const TextStyle(fontSize: 13),
-                      ),
-                      Text(
-                        'RM ${item.price.toStringAsFixed(2)}',
-                        style: TextStyle(
-                          fontWeight: FontWeight.w600,
-                          fontSize: 14,
-                          color: Colors.green.shade700,
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              const SizedBox(height: 22),
-              if (order.status == 'Shipped' || order.status == 'Received') ...[
-                const Text(
-                  'Shipment Details',
-                  style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                ),
-                const SizedBox(height: 12),
-                if (order.trackingNumber != null) ...[
-                  Row(
-                    children: [
-                      const Icon(Icons.local_shipping_outlined, size: 15),
-                      const SizedBox(width: 6),
-                      Expanded(
-                        child: Text('Tracking: ${order.trackingNumber!}'),
-                      ),
-                    ],
-                  ),
-                  const SizedBox(height: 8),
-                ],
-                if (order.proofImagePath != null) ...[
-                  const Text('Proof Image', style: TextStyle(fontSize: 14)),
-                  const SizedBox(height: 4),
-                  Container(
-                    padding: const EdgeInsets.all(6),
-                    decoration: BoxDecoration(
-                      border: Border.all(color: Colors.grey.shade400),
-                      borderRadius: BorderRadius.circular(6),
-                    ),
-                    child: Image.asset(
-                      order.proofImagePath!,
-                      height: 120,
-                      width: double.infinity,
-                      fit: BoxFit.contain,
-                    ),
-                  ),
-                ],
-                if (order.rating != null && order.feedback != null) ...[
-                  const SizedBox(height: 18),
-                  const Text(
-                    'Customer Feedback',
-                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
-                  ),
-                  const SizedBox(height: 12),
-                  Container(
-                    padding: const EdgeInsets.all(12),
-                    decoration: BoxDecoration(
-                      color: Colors.green.shade50,
-                      borderRadius: BorderRadius.circular(8),
-                      border: Border.all(color: Colors.green.shade200),
-                    ),
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Row(
-                          children: [
-                            const Icon(
-                              Icons.star,
-                              size: 18,
-                              color: Colors.amber,
-                            ),
-                            const SizedBox(width: 8),
-                            Text(
-                              'Rating: ${order.rating}/5',
-                              style: const TextStyle(
-                                fontWeight: FontWeight.w500,
-                              ),
-                            ),
-                          ],
-                        ),
-                        const SizedBox(height: 8),
-                        Row(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            const Icon(
-                              Icons.comment,
-                              size: 18,
-                              color: Colors.grey,
-                            ),
-                            const SizedBox(width: 8),
-                            Expanded(
-                              child: Text(
-                                'Feedback: ${order.feedback}',
-                                style: const TextStyle(fontSize: 14),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ],
-                    ),
-                  ),
-                ],
-              ] else if (order.status == 'Preparing' && !isShipExpanded)
-                SizedBox(
-                  width: double.infinity,
-                  child: ElevatedButton(
-                    onPressed: () {
-                      setState(() {
-                        _shipOrderExpanded.add(orderNumber);
-                      });
-                    },
-                    style: ElevatedButton.styleFrom(
-                      backgroundColor: const Color(0xFF2DAF47),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(12),
-                      ),
-                      padding: const EdgeInsets.symmetric(vertical: 14),
-                    ),
-                    child: const Text(
-                      'Ship Order',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                  ),
-                ),
-              if (isShipExpanded)
-                Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    const Divider(height: 32, thickness: 1.2),
-                    const Text(
-                      'Ship Order',
-                      style: TextStyle(
-                        fontWeight: FontWeight.bold,
-                        fontSize: 16,
-                      ),
-                    ),
-                    const SizedBox(height: 12),
-                    TextField(
-                      controller: trackingController,
-                      decoration: const InputDecoration(
-                        labelText: 'Tracking Number',
-                        hintText: 'e.g., TRK123456789',
-                        border: OutlineInputBorder(),
-                      ),
-                      onChanged: (_) => setState(() {}),
-                    ),
-                    const SizedBox(height: 16),
-                    const Text(
-                      'Parcel Image (Proof)',
-                      style: TextStyle(fontSize: 14),
-                    ),
-                    const SizedBox(height: 4),
-                    ElevatedButton.icon(
-                      icon: const Icon(Icons.upload_file),
-                      label: const Text('Choose File'),
-                      onPressed: () async {
-                        final XFile? pickedImage = await _picker.pickImage(
-                          source: ImageSource.gallery,
-                        );
-                        if (pickedImage != null) {
-                          setState(() {
-                            _selectedImageFiles[orderNumber] = File(
-                              pickedImage.path,
-                            );
-                          });
-                        }
-                      },
-                    ),
-                    const SizedBox(height: 8),
-                    if (_selectedImageFiles[orderNumber] != null)
-                      Container(
-                        padding: const EdgeInsets.all(6),
-                        decoration: BoxDecoration(
-                          border: Border.all(color: Colors.grey.shade400),
-                          borderRadius: BorderRadius.circular(6),
-                        ),
-                        child: Image.file(
-                          _selectedImageFiles[orderNumber]!,
-                          height: 120,
-                          width: double.infinity,
-                          fit: BoxFit.contain,
-                        ),
-                      ),
-                    const SizedBox(height: 24),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: OutlinedButton(
-                            onPressed: () {
-                              setState(() {
-                                _shipOrderExpanded.remove(orderNumber);
-                                trackingController.clear();
-                                _selectedImageFiles[orderNumber] = null;
-                              });
-                            },
-                            style: OutlinedButton.styleFrom(
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                            child: const Text('Cancel'),
-                          ),
-                        ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: ElevatedButton(
-                            onPressed: _isConfirmEnabled(orderNumber)
-                                ? () {
-                                    setState(() {
-                                      final idx = orders.indexWhere(
-                                        (o) => o.orderNumber == orderNumber,
-                                      );
-                                      if (idx != -1) {
-                                        orders[idx] = orders[idx].copyWith(
-                                          status: 'Shipped',
-                                          trackingNumber: trackingController
-                                              .text
-                                              .trim(),
-                                          proofImagePath:
-                                              _selectedImageFiles[orderNumber]
-                                                  ?.path,
-                                        );
-                                      }
-                                      _shipOrderExpanded.remove(orderNumber);
-                                      _expandedOrders.remove(orderNumber);
-                                      trackingController.clear();
-                                      _selectedImageFiles[orderNumber] = null;
-                                    });
-                                    ScaffoldMessenger.of(context).showSnackBar(
-                                      SnackBar(
-                                        content: Text(
-                                          'Shipment confirmed for order $orderNumber',
-                                        ),
-                                      ),
-                                    );
-                                  }
-                                : null,
-                            style: ElevatedButton.styleFrom(
-                              backgroundColor: _isConfirmEnabled(orderNumber)
-                                  ? const Color(0xFF2DAF47)
-                                  : Colors.grey,
-                              padding: const EdgeInsets.symmetric(vertical: 14),
-                            ),
-                            child: const Text('Confirm Shipment'),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ],
-                ),
-            ],
+          if (isExpanded) ...[
+        const Divider(height: 32, thickness: 1.2),
+    const Text(
+    'Customer Details',
+    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+    ),
+    const SizedBox(height: 12),
+    if (order.email != null)
+    Row(
+    children: [
+    const Icon(Icons.email_outlined, size: 15),
+    const SizedBox(width: 6),
+    Expanded(child: Text(order.email!)),
+    ],
+    ),
+    if (order.phone != null) ...[
+    const SizedBox(height: 8),
+    Row(
+    children: [
+    const Icon(Icons.phone_outlined, size: 15),
+    const SizedBox(width: 6),
+    Expanded(child: Text(order.phone!)),
+    ],
+    ),
+    ],
+    if (order.address != null) ...[
+    const SizedBox(height: 8),
+    Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+    const Icon(Icons.location_on_outlined, size: 15),
+    const SizedBox(width: 6),
+    Expanded(child: Text(order.address!)),
+    ],
+    ),
+    ],
+    const SizedBox(height: 18),
+    const Text(
+    'Order Items',
+    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+    ),
+    const SizedBox(height: 12),
+    ...?order.orderItems?.map(
+    (item) => Padding(
+    padding: const EdgeInsets.only(bottom: 10),
+    child: Row(
+    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+    children: [
+    Flexible(child: Text(item.name)),
+    Text(
+    'Qty: ${item.qty}',
+    style: const TextStyle(fontSize: 13),
+    ),
+    Text(
+    'RM ${item.price.toStringAsFixed(2)}',
+    style: TextStyle(
+    fontWeight: FontWeight.w600,
+    fontSize: 14,
+    color: Colors.green.shade700,
+    ),
+    ),
+    ],
+    ),
+    ),
+    ),
+    const SizedBox(height: 22),
+
+    // ===========================================================
+    // NEW INTEGRATE AND REJECT BUTTONS
+    // ===========================================================
+    if (order.status == 'Preparing' || order.status == 'Pending') ...[
+    Row(
+    children: [
+    Expanded(
+    child: ElevatedButton.icon(
+    icon: const Icon(Icons.check, color: Colors.white, size: 18),
+    label: const Text("Integrate", style: TextStyle(color: Colors.white)),
+    style: ElevatedButton.styleFrom(backgroundColor: Colors.blue),
+    onPressed: () {
+    // Update Firebase status to 'Preparing' or 'Integrated'
+    FirebaseDatabase.instance.ref("orders/${order.orderNumber}").update({
+    'status': 'Preparing',
+    });
+    },
+    ),
+    ),
+    const SizedBox(width: 8),
+    Expanded(
+    child: ElevatedButton.icon(
+    icon: const Icon(Icons.close, color: Colors.white, size: 18),
+    label: const Text("Reject", style: TextStyle(color: Colors.white)),
+    style: ElevatedButton.styleFrom(backgroundColor: Colors.red),
+    onPressed: () {
+    // Update Firebase status to 'Rejected'
+    FirebaseDatabase.instance.ref("orders/${order.orderNumber}").update({
+    'status': 'Rejected',
+    });
+    },
+    ),
+    ),
+    ],
+    ),
+    const SizedBox(height: 12),
+    ],
+    // ===========================================================
+
+    if (order.status == 'Shipped' || order.status == 'Received') ...[
+    const Text(
+    'Shipment Details',
+    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+    ),
+    const SizedBox(height: 12),
+    if (order.trackingNumber != null) ...[
+    Row(
+    children: [
+    const Icon(Icons.local_shipping_outlined, size: 15),
+    const SizedBox(width: 6),
+    Expanded(
+    child: Text('Tracking: ${order.trackingNumber!}'),
+    ),
+    ],
+    ),
+    const SizedBox(height: 8),
+    ],
+    if (order.proofImagePath != null) ...[
+    const Text('Proof Image', style: TextStyle(fontSize: 14)),
+    const SizedBox(height: 4),
+    Container(
+    padding: const EdgeInsets.all(6),
+    decoration: BoxDecoration(
+    border: Border.all(color: Colors.grey.shade400),
+    borderRadius: BorderRadius.circular(6),
+    ),
+    child: order.proofImagePath!.startsWith('assets/')
+    ? Image.asset(order.proofImagePath!, height: 120, width: double.infinity, fit: BoxFit.contain)
+        : Image.file(File(order.proofImagePath!), height: 120, width: double.infinity, fit: BoxFit.contain),
+    ),
+    ],
+    if (order.rating != null && order.feedback != null) ...[
+    const SizedBox(height: 18),
+    const Text(
+    'Customer Feedback',
+    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 14),
+    ),
+    const SizedBox(height: 12),
+    Container(
+    padding: const EdgeInsets.all(12),
+    decoration: BoxDecoration(
+    color: Colors.green.shade50,
+    borderRadius: BorderRadius.circular(8),
+    border: Border.all(color: Colors.green.shade200),
+    ),
+    child: Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+    Row(
+    children: [
+    const Icon(Icons.star, size: 18, color: Colors.amber),
+    const SizedBox(width: 8),
+    Text('Rating: ${order.rating}/5', style: const TextStyle(fontWeight: FontWeight.w500)),
+    ],
+    ),
+    const SizedBox(height: 8),
+    Row(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+    const Icon(Icons.comment, size: 18, color: Colors.grey),
+    const SizedBox(width: 8),
+    Expanded(child: Text('Feedback: ${order.feedback}', style: const TextStyle(fontSize: 14))),
+    ],
+    ),
+    ],
+    ),
+    ),
+    ],
+    ] else if (order.status == 'Preparing' && !isShipExpanded)
+    SizedBox(
+    width: double.infinity,
+    child: ElevatedButton(
+    onPressed: () {
+    setState(() {
+    _shipOrderExpanded.add(orderNumber);
+    });
+    },
+    style: ElevatedButton.styleFrom(
+    backgroundColor: const Color(0xFF2DAF47),
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+    padding: const EdgeInsets.symmetric(vertical: 14),
+    ),
+    child: const Text('Ship Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+    ),
+    ),
+    if (isShipExpanded)
+    Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+    const Divider(height: 32, thickness: 1.2),
+    const Text('Ship Order', style: TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+    const SizedBox(height: 12),
+    TextField(
+    controller: trackingController,
+    decoration: const InputDecoration(
+    labelText: 'Tracking Number',
+    hintText: 'e.g., TRK123456789',
+    border: OutlineInputBorder(),
+    ),
+    onChanged: (_) => setState(() {}),
+    ),
+    const SizedBox(height: 16),
+    const Text('Parcel Image (Proof)', style: TextStyle(fontSize: 14)),
+    const SizedBox(height: 4),
+    ElevatedButton.icon(
+    icon: const Icon(Icons.upload_file),
+    label: const Text('Choose File'),
+    onPressed: () async {
+    final XFile? pickedImage = await _picker.pickImage(source: ImageSource.gallery);
+    if (pickedImage != null) {
+    setState(() {
+    _selectedImageFiles[orderNumber] = File(pickedImage.path);
+    });
+    }
+    },
+    ),
+    const SizedBox(height: 8),
+    if (_selectedImageFiles[orderNumber] != null)
+    Container(
+    padding: const EdgeInsets.all(6),
+    decoration: BoxDecoration(
+    border: Border.all(color: Colors.grey.shade400),
+    borderRadius: BorderRadius.circular(6),
+    ),
+    child: Image.file(_selectedImageFiles[orderNumber]!, height: 120, width: double.infinity, fit: BoxFit.contain),
+    ),
+    const SizedBox(height: 24),
+    Row(
+    children: [
+    Expanded(
+    child: OutlinedButton(
+    onPressed: () {
+    setState(() {
+    _shipOrderExpanded.remove(orderNumber);
+    trackingController.clear();
+    _selectedImageFiles[orderNumber] = null;
+    });
+    },
+    style: OutlinedButton.styleFrom(padding: const EdgeInsets.symmetric(vertical: 14)),
+    child: const Text('Cancel'),
+    ),
+    ),
+    const SizedBox(width: 12),
+    Expanded(
+    child: ElevatedButton(
+    onPressed: _isConfirmEnabled(orderNumber)
+    ? () {
+    // Update Firebase with Shipping info
+    FirebaseDatabase.instance.ref("orders/$orderNumber").update({
+    'status': 'Shipped',
+    'trackingNumber': trackingController.text.trim(),
+    'proofImagePath': _selectedImageFiles[orderNumber]?.path,
+    });
+
+    setState(() {
+    _shipOrderExpanded.remove(orderNumber);
+    _expandedOrders.remove(orderNumber);
+    trackingController.clear();
+    _selectedImageFiles[orderNumber] = null;
+    });
+    }
+        : null,
+    style: ElevatedButton.styleFrom(
+    backgroundColor: _isConfirmEnabled(orderNumber) ? const Color(0xFF2DAF47) : Colors.grey,
+    padding: const EdgeInsets.symmetric(vertical: 14),
+    ),
+    child: const Text('Confirm Shipment'),
+    ),
+    ),
+    ],
+    ),
+    ],
+    ),
+    ],
           ],
         ),
       ),
@@ -1047,15 +1052,14 @@ class OrderData {
   final int items;
   final String status;
   final double amount;
-
   final String? email;
   final String? phone;
   final String? address;
   final List<OrderItem>? orderItems;
   final String? trackingNumber;
-  final String? proofImagePath; // Path to the proof image
-  final int? rating; // Customer rating (1-5)
-  final String? feedback; // Customer feedback
+  final String? proofImagePath;
+  final int? rating;
+  final String? feedback;
 
   OrderData({
     required this.customerName,
@@ -1073,6 +1077,29 @@ class OrderData {
     this.rating,
     this.feedback,
   });
+
+  // ADD THIS FACTORY CONSTRUCTOR BELOW
+  factory OrderData.fromMap(String id, Map<dynamic, dynamic> map) {
+    return OrderData(
+      orderNumber: id, // The key from Firebase acts as the order number
+      customerName: map['customerName'] ?? 'Unknown Customer',
+      orderDate: map['orderDate'] ?? '',
+      items: map['items'] ?? 0,
+      status: map['status'] ?? 'Pending',
+      amount: (map['amount'] ?? 0).toDouble(),
+      email: map['email'],
+      phone: map['phone'],
+      address: map['address'],
+      trackingNumber: map['trackingNumber'],
+      proofImagePath: map['proofImagePath'],
+      rating: map['rating'],
+      feedback: map['feedback'],
+      // Logic to handle the list of items
+      orderItems: map['orderItems'] != null
+          ? (map['orderItems'] as List).map((i) => OrderItem.fromMap(i)).toList()
+          : null,
+    );
+  }
 }
 
 class OrderItem {
@@ -1081,4 +1108,31 @@ class OrderItem {
   final double price;
 
   OrderItem({required this.name, required this.qty, required this.price});
+
+  factory OrderItem.fromMap(Map<dynamic, dynamic> map) {
+    return OrderItem(
+      name: map['name'] ?? '',
+      qty: map['qty'] ?? 0,
+      price: (map['price'] ?? 0).toDouble(),
+    );
+  }
+}
+
+class OrderService {
+  // This points to your 'orders' node in Firebase
+  final DatabaseReference _db = FirebaseDatabase.instance.ref("orders");
+
+  // INTEGRATE: Changes status to 'Preparing'
+  Future<void> integrateOrder(String orderId) async {
+    await _db.child(orderId).update({
+      'status': 'Preparing',
+    });
+  }
+
+  // REJECT: Changes status to 'Rejected'
+  Future<void> rejectOrder(String orderId) async {
+    await _db.child(orderId).update({
+      'status': 'Rejected',
+    });
+  }
 }
