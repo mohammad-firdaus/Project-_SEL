@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:http/http.dart' as http;
 import 'package:intl/intl.dart';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class GeminiaiChatbot extends StatelessWidget {
   const GeminiaiChatbot({super.key});
@@ -42,7 +43,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
           messages.add({
             "sender": "bot",
             "text":
-                "👋 Hello! I'm your Waste2Wealth AI assistant. How can I help you today?",
+            "👋 Hello! I'm your Waste2Wealth AI assistant. How can I help you today?",
             "timestamp": DateTime.now(),
           });
           showWelcome = false;
@@ -56,7 +57,7 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
     const String apiKey = "AIzaSyA_n7ECYbbZ7QYxtZfGrCxrBxLQUyI8sow";
 
     final url = Uri.parse(
-      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=$apiKey",
+      "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-lite:generateContent?key=$apiKey",
     );
 
     try {
@@ -172,10 +173,10 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                 decoration: BoxDecoration(
                   gradient: isUser
                       ? LinearGradient(
-                          colors: [primaryGreen, darkGreen],
-                          begin: Alignment.topLeft,
-                          end: Alignment.bottomRight,
-                        )
+                    colors: [primaryGreen, darkGreen],
+                    begin: Alignment.topLeft,
+                    end: Alignment.bottomRight,
+                  )
                       : null,
                   color: isUser ? null : Colors.white,
                   borderRadius: BorderRadius.only(
@@ -194,12 +195,28 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                     ),
                   ],
                 ),
-                child: Text(
+                child: isUser
+                    ? Text(
+                  // Keep standard Text for the User (users usually don't type Markdown)
                   text,
                   style: TextStyle(
-                    color: isUser ? Colors.white : Colors.black87,
+                    color: Colors.white,
                     fontSize: 15,
                     height: 1.4,
+                  ),
+                )
+                    : MarkdownBody(
+                  // Use Markdown for the AI Bot
+                  data: text,
+                  styleSheet: MarkdownStyleSheet(
+                    p: TextStyle(
+                      color: Colors.black87,
+                      fontSize: 15,
+                      height: 1.4,
+                    ),
+                    // This ensures the bold text is still readable
+                    strong: TextStyle(fontWeight: FontWeight.bold),
+                    listBullet: TextStyle(color: darkGreen),
                   ),
                 ),
               ),
@@ -379,16 +396,16 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
               child: messages.isEmpty && !showWelcome
                   ? buildSuggestionChips()
                   : ListView.builder(
-                      controller: scrollController,
-                      padding: const EdgeInsets.all(16),
-                      itemCount: messages.length + (isTyping ? 1 : 0),
-                      itemBuilder: (context, index) {
-                        if (isTyping && index == messages.length) {
-                          return buildTypingIndicator();
-                        }
-                        return buildMessageBubble(messages[index], index);
-                      },
-                    ),
+                controller: scrollController,
+                padding: const EdgeInsets.all(16),
+                itemCount: messages.length + (isTyping ? 1 : 0),
+                itemBuilder: (context, index) {
+                  if (isTyping && index == messages.length) {
+                    return buildTypingIndicator();
+                  }
+                  return buildMessageBubble(messages[index], index);
+                },
+              ),
             ),
             Container(
               decoration: BoxDecoration(
@@ -430,13 +447,13 @@ class _ChatScreenState extends State<ChatScreen> with TickerProviderStateMixin {
                             ),
                             suffixIcon: controller.text.isNotEmpty
                                 ? IconButton(
-                                    icon: Icon(Icons.clear, size: 20),
-                                    onPressed: () {
-                                      controller.clear();
-                                      setState(() {});
-                                    },
-                                    color: Colors.grey[600],
-                                  )
+                              icon: Icon(Icons.clear, size: 20),
+                              onPressed: () {
+                                controller.clear();
+                                setState(() {});
+                              },
+                              color: Colors.grey[600],
+                            )
                                 : null,
                           ),
                           style: TextStyle(fontSize: 15),
