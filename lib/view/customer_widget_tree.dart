@@ -27,13 +27,14 @@ class CustomerWidgetTree extends StatelessWidget {
           fontSize: 20,
           fontWeight: FontWeight.bold,
           color: Colors.white,
+          fontFamily: 'MomoSignature',
         ),
         centerTitle: false,
         backgroundColor: Color(0xFF42B642),
         actions: [
           Padding(
             padding: const EdgeInsets.all(8.0),
-            child: Image.asset('assets/images/logo_nobg.PNG'),
+            child: Image.asset('assets/images/logo3-nobg.png'),
           ),
         ],
       ),

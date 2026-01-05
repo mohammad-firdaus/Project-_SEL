@@ -1,12 +1,13 @@
 import 'package:flutter/material.dart';
+import 'package:url_launcher/url_launcher.dart';
 
 class ContactUsPage extends StatelessWidget {
   const ContactUsPage({super.key});
 
-  final String instagramHandle = '@wastetowealth';
-  final String tiktokHandle = '@wastetowealth.my';
-  final String phoneNumber = '+60 12-345-6789';
-  final String emailAddress = 'hello@wastetowealth.my';
+  final String instagramHandle = '@ecofab_wastetowealth';
+  final String tiktokHandle = '@ecofab_wastetowea';
+  final String phoneNumber = '+60 13-512 7709';
+  final String emailAddress = 'wastetowealth.ecofab@gmail.com';
 
   @override
   Widget build(BuildContext context) {
@@ -85,8 +86,16 @@ class ContactUsPage extends StatelessWidget {
                     _socialMediaRow(
                       imagePath: 'assets/images/instagram.jpg',
                       label: instagramHandle,
-                      onTap: () {
-                        // TODO: Open Instagram profile link
+                      onTap: () async {
+                        final url = Uri.parse(
+                          'https://www.instagram.com/ecofab_wastetowealth?igsh=bXRud3RIMzlyMng1',
+                        );
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(
+                            url,
+                            mode: LaunchMode.externalApplication,
+                          );
+                        }
                       },
                     ),
 
@@ -96,8 +105,16 @@ class ContactUsPage extends StatelessWidget {
                     _socialMediaRow(
                       imagePath: 'assets/images/tiktok.png',
                       label: tiktokHandle,
-                      onTap: () {
-                        // TODO: Open TikTok profile link
+                      onTap: () async {
+                        final url = Uri.parse(
+                          'https://www.tiktok.com/@ecofab_wastetowea?_r=1&_t=ZS-91ssZhXX5pw',
+                        );
+                        if (await canLaunchUrl(url)) {
+                          await launchUrl(
+                            url,
+                            mode: LaunchMode.externalApplication,
+                          );
+                        }
                       },
                     ),
 
@@ -118,8 +135,18 @@ class ContactUsPage extends StatelessWidget {
                     _contactRow(
                       icon: Icons.phone_outlined,
                       contactText: phoneNumber,
-                      onTap: () {
-                        // TODO: Launch phone dialer
+                      onTap: () async {
+                        final Uri launchUri = Uri(
+                          scheme: 'tel',
+                          path:
+                              '0135127709', // Replace with the desired phone number
+                        );
+                        if (await canLaunchUrl(launchUri)) {
+                          await launchUrl(launchUri);
+                        } else {
+                          // Handle the case where the URL cannot be launched (e.g., show a SnackBar)
+                          print('Could not launch $launchUri');
+                        }
                       },
                     ),
 
@@ -129,8 +156,27 @@ class ContactUsPage extends StatelessWidget {
                     _contactRow(
                       icon: Icons.email_outlined,
                       contactText: emailAddress,
-                      onTap: () {
-                        // TODO: Launch email client
+                      onTap: () async {
+                        // The recipient email address
+                        final Uri emailLaunchUri = Uri(
+                          scheme: 'mailto',
+                          path:
+                              'wastetowealth.ecofab@gmail.com', // The email address you want to send to
+                          query: _encodeQueryParameters(<String, String>{
+                            'subject':
+                                '', // Optional: pre-filled subject
+                            'body':
+                                '', // Optional: pre-filled body
+                          }),
+                        );
+
+                        if (await canLaunchUrl(emailLaunchUri)) {
+                          await launchUrl(emailLaunchUri);
+                        } else {
+                          // Handle the case where no email app is installed
+                          // You could show a dialog or a snackbar
+                          throw 'Could not launch $emailLaunchUri';
+                        }
                       },
                     ),
 
@@ -187,6 +233,15 @@ class ContactUsPage extends StatelessWidget {
         ],
       ),
     );
+  }
+
+  String? _encodeQueryParameters(Map<String, String> params) {
+    return params.entries
+        .map(
+          (e) =>
+              '${Uri.encodeComponent(e.key)}=${Uri.encodeComponent(e.value)}',
+        )
+        .join('&');
   }
 
   Widget _socialMediaRow({

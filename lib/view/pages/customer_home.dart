@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:project_sel/view/pages/geminiAI_chatbot.dart';
 
 class CustomerHome extends StatelessWidget {
   const CustomerHome({super.key});
@@ -10,16 +11,27 @@ class CustomerHome extends StatelessWidget {
     bool isNewCampaign = false,
     bool isSponsored = false,
   }) {
+    // Check if imageUrl is a network URL or asset path
+    final bool isNetworkImage =
+        imageUrl.startsWith('http://') || imageUrl.startsWith('https://');
+
     return Stack(
       children: [
         ClipRRect(
           borderRadius: BorderRadius.circular(15),
-          child: Image.network(
-            imageUrl,
-            height: 140,
-            width: double.infinity,
-            fit: BoxFit.cover,
-          ),
+          child: isNetworkImage
+              ? Image.network(
+                  imageUrl,
+                  height: 140,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                )
+              : Image.asset(
+                  imageUrl,
+                  height: 140,
+                  width: double.infinity,
+                  fit: BoxFit.cover,
+                ),
         ),
         if (isNewCampaign)
           Positioned(
@@ -116,7 +128,7 @@ class CustomerHome extends StatelessWidget {
                   borderRadius: BorderRadius.circular(12),
                 ),
                 child: const Text(
-                  '27 spots left',
+                  'Coming Soon',
                   style: TextStyle(
                     color: Colors.green,
                     fontSize: 12,
@@ -128,29 +140,46 @@ class CustomerHome extends StatelessWidget {
           ),
           const SizedBox(height: 8),
           const Text(
-            'Saturday, Nov 2, 2025 - 10:00 AM',
+            'Saturday, Nov 2, 2025',
             style: TextStyle(color: Colors.white70, fontSize: 12),
           ),
-          const SizedBox(height: 8),
-          const Text(
-            'Join us for a community beach cleanup and earn double points!',
-            style: TextStyle(color: Colors.white, fontSize: 14),
+          SizedBox(height: 12),
+          Divider(height: 1, thickness: 1),
+          SizedBox(height: 12),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.location_on, size: 16, color: Colors.white),
+              SizedBox(width: 8),
+              // Allow location to wrap and constrain lines to avoid overflow
+              Expanded(
+                child: Text(
+                  'Pantai Cenang Beach Park, Lot 123, Jalan Pantai Cenang, 07000 Langkawi, Kedah',
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
+                ),
+              ),
+            ],
           ),
           const SizedBox(height: 12),
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () {},
-              style: ElevatedButton.styleFrom(
-                foregroundColor: Colors.green,
-                backgroundColor: Colors.white,
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(20),
+          Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(Icons.description_outlined, size: 16, color: Colors.white),
+              SizedBox(width: 8),
+              // Allow location to wrap and constrain lines to avoid overflow
+              Expanded(
+                child: Text(
+                  'Join volunteers to remove debris and collect recyclables at Pantai Cenang. Supplies and refreshments provided. Family-friendly — registration opens at 8:00 AM.',
+                  style: TextStyle(color: Colors.white, fontSize: 14),
+                  maxLines: 4,
+                  overflow: TextOverflow.ellipsis,
+                  softWrap: true,
                 ),
-                padding: const EdgeInsets.symmetric(vertical: 14),
               ),
-              child: const Text('Register Now'),
-            ),
+            ],
           ),
         ],
       ),
@@ -225,156 +254,201 @@ class CustomerHome extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SingleChildScrollView(
-      padding: const EdgeInsets.fromLTRB(20, 16, 20, 64),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          // Welcome & Subtitle
-          Row(
+    return Stack(
+      children: [
+        SingleChildScrollView(
+          padding: const EdgeInsets.fromLTRB(20, 16, 20, 64),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const Expanded(
-                child: Text('Welcome back!', style: TextStyle(fontSize: 16)),
-              ),
-              CircleAvatar(
-                radius: 18,
-                backgroundImage: AssetImage(
-                  'assets/images/profile_user.jpg',
-                ),
-              ),
-            ],
-          ),
-          const SizedBox(height: 2),
-          const Text(
-            'Let\'s Save the Planet Together',
-            style: TextStyle(
-              color: Colors.green,
-              fontWeight: FontWeight.bold,
-              fontSize: 18,
-            ),
-          ),
-
-          const SizedBox(height: 24),
-
-          // Featured Section Header
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: const [
-              Text(
-                'Featured',
-                style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-              ),
-              Text(
-                'Sponsored',
-                style: TextStyle(fontSize: 12, color: Colors.grey),
-              ),
-            ],
-          ),
-
-          const SizedBox(height: 16),
-
-          // Featured cards
-          Column(
-            children: [
-              _buildFeaturedCard(
-                'https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&w=800&q=60',
-                'Join the Green Revolution',
-                'Small changes, big impact. Start your eco journey today.',
-                isNewCampaign: true,
-                isSponsored: true,
-              ),
-              const SizedBox(height: 12),
+              // Welcome & Subtitle
               Row(
                 children: [
-                  Expanded(
-                    child: _buildFeaturedCard(
-                      'https://images.unsplash.com/photo-1523413651479-597eb2da0ad6?auto=format&fit=crop&w=600&q=60',
-                      'Recycle More',
-                      'Earn double points',
+                  const Expanded(
+                    child: Text(
+                      'Welcome back!',
+                      style: TextStyle(fontSize: 16),
                     ),
                   ),
-                  const SizedBox(width: 12),
-                  Expanded(
-                    child: _buildFeaturedCard(
-                      'https://images.unsplash.com/photo-1556740738-b6a63e27c4df?auto=format&fit=crop&w=600&q=60',
-                      'New Arrivals',
-                      'Sustainable products',
+                  CircleAvatar(
+                    radius: 18,
+                    backgroundImage: AssetImage(
+                      'assets/images/profile_user.jpg',
                     ),
                   ),
                 ],
               ),
-            ],
-          ),
-
-          const SizedBox(height: 28),
-
-          // Upcoming Events Section
-          const Text(
-            'Upcoming Events',
-            style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
-          ),
-          const SizedBox(height: 16),
-          _buildUpcomingEventCard(),
-
-          const SizedBox(height: 28),
-
-          // Customer Reviews Section
-          Row(
-            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-            children: [
+              const SizedBox(height: 2),
               const Text(
-                'Customer Reviews',
+                'Let\'s Save the Planet Together',
+                style: TextStyle(
+                  color: Colors.green,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 18,
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Featured Section Header
+              Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: const [
+                  Text(
+                    'Featured',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  Text(
+                    'Sponsored',
+                    style: TextStyle(fontSize: 12, color: Colors.grey),
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 16),
+
+              // Featured cards
+              Column(
+                children: [
+                  _buildFeaturedCard(
+                    'assets/images/main_banner.jpeg',
+                    'Join the Green Revolution',
+                    'Small changes, big impact. Start your eco journey today.',
+                    isNewCampaign: true,
+                    isSponsored: true,
+                  ),
+                  const SizedBox(height: 12),
+                  Row(
+                    children: [
+                      Expanded(
+                        child: _buildFeaturedCard(
+                          'assets/images/secondary_card1.jpeg',
+                          'Recycle More',
+                          'Earn double points',
+                        ),
+                      ),
+                      const SizedBox(width: 12),
+                      Expanded(
+                        child: _buildFeaturedCard(
+                          'assets/images/secondary_card2.jpeg',
+                          'New Arrivals',
+                          'Sustainable products',
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
+
+              const SizedBox(height: 28),
+
+              // Upcoming Events Section
+              const Text(
+                'Upcoming Events',
                 style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
               ),
+              const SizedBox(height: 16),
+              _buildUpcomingEventCard(),
+
+              const SizedBox(height: 28),
+
+              // Customer Reviews Section
               Row(
-                children: const [
-                  Icon(Icons.star, color: Colors.green, size: 18),
-                  SizedBox(width: 4),
-                  Text('4.8/5.0', style: TextStyle(color: Colors.green)),
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                children: [
+                  const Text(
+                    'Customer Reviews',
+                    style: TextStyle(fontWeight: FontWeight.bold, fontSize: 18),
+                  ),
+                  Row(
+                    children: const [
+                      Icon(Icons.star, color: Colors.green, size: 18),
+                      SizedBox(width: 4),
+                      Text('4.8/5.0', style: TextStyle(color: Colors.green)),
+                    ],
+                  ),
                 ],
+              ),
+
+              const SizedBox(height: 10),
+
+              // Review Cards
+              _buildCustomerReview(
+                name: 'Sarah Chen',
+                date: 'Nov 18, 2023',
+                rating: 5,
+                review:
+                    'Amazing eco-friendly products! The quality exceeded my expectations and delivery was super fast. Love supporting sustainable brands!',
+                showButton: true,
+                buttonText: 'Product Care Guide Set',
+              ),
+              _buildCustomerReview(
+                name: 'Michael Tomas',
+                date: 'Nov 17, 2023',
+                rating: 5,
+                review:
+                    'Best decision ever! These products are not only good for the environment but also incredibly mid-mass. Highly recommend!',
+              ),
+              _buildCustomerReview(
+                name: 'Emma Wilson',
+                date: 'Nov 16, 2023',
+                rating: 5,
+                review:
+                    'The packaging was thoughtful and the products arrived in perfect condition. So happy to contribute to a greener planet!',
+                showButton: true,
+                buttonText: 'Premium Paper Notebook',
+              ),
+              _buildCustomerReview(
+                name: 'Lisa Anderson',
+                date: 'Nov 14, 2023',
+                rating: 5,
+                review:
+                    'Absolutely love it! The customer service was exceptional and the products are top-notch. Making a positive impact feels so good!',
+                showButton: true,
+                buttonText: 'Glass Water Bottle',
               ),
             ],
           ),
+        ),
 
-          const SizedBox(height: 10),
-
-          // Review Cards
-          _buildCustomerReview(
-            name: 'Sarah Chen',
-            date: 'Nov 18, 2023',
-            rating: 5,
-            review:
-                'Amazing eco-friendly products! The quality exceeded my expectations and delivery was super fast. Love supporting sustainable brands!',
-            showButton: true,
-            buttonText: 'Product Care Guide Set',
+        // AI Chatbot Floating Button
+        Positioned(
+          right: 20,
+          bottom: 80,
+          child: Container(
+            decoration: BoxDecoration(
+              shape: BoxShape.circle,
+              gradient: const LinearGradient(
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+                colors: [Color(0xFF42B642), Color(0xFF2E7D32)],
+              ),
+              boxShadow: [
+                BoxShadow(
+                  color: const Color(0xFF42B642).withOpacity(0.5),
+                  blurRadius: 15,
+                  offset: const Offset(0, 5),
+                ),
+              ],
+            ),
+            child: FloatingActionButton(
+              onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) {
+                      return GeminiaiChatbot();
+                    },
+                  ),
+                );
+              },
+              backgroundColor: Colors.transparent,
+              elevation: 0,
+              child: const Icon(Icons.smart_toy, size: 32, color: Colors.white),
+            ),
           ),
-          _buildCustomerReview(
-            name: 'Michael Tomas',
-            date: 'Nov 17, 2023',
-            rating: 5,
-            review:
-                'Best decision ever! These products are not only good for the environment but also incredibly mid-mass. Highly recommend!',
-          ),
-          _buildCustomerReview(
-            name: 'Emma Wilson',
-            date: 'Nov 16, 2023',
-            rating: 5,
-            review:
-                'The packaging was thoughtful and the products arrived in perfect condition. So happy to contribute to a greener planet!',
-            showButton: true,
-            buttonText: 'Premium Paper Notebook',
-          ),
-          _buildCustomerReview(
-            name: 'Lisa Anderson',
-            date: 'Nov 14, 2023',
-            rating: 5,
-            review:
-                'Absolutely love it! The customer service was exceptional and the products are top-notch. Making a positive impact feels so good!',
-            showButton: true,
-            buttonText: 'Glass Water Bottle',
-          ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
