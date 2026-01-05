@@ -1145,6 +1145,8 @@ class _CustomerShopState extends State<CustomerShop>
   }
 }
 
+const Color primaryGreen = Color(0xFF2E7D32);
+
 // Cart Page
 class CartPage extends StatefulWidget {
   const CartPage({super.key});
@@ -1156,6 +1158,22 @@ class CartPage extends StatefulWidget {
 class _CartPageState extends State<CartPage> {
   // Assuming totalAmount is calculated from your CartService
   double get totalAmount => CartService().subtotal;
+
+  void _updateQuantity(int index, int newQuantity) {
+    if (newQuantity > 0) {
+      setState(() {
+        CartService().items[index].quantity = newQuantity;
+      });
+    } else {
+      _removeItem(index);
+    }
+  }
+
+  void _removeItem(int index) {
+    setState(() {
+      CartService().items.removeAt(index);
+    });
+  }
 
   Future<void> _processToyyibPayPayment() async {
     const String userSecretKey = "doihxxan-9t6e-6z8k-yd2x-s0gdhm16t7os";
@@ -1213,14 +1231,208 @@ class _CartPageState extends State<CartPage> {
 
   @override
   Widget build(BuildContext context) {
+    // Calculating totals based on the CartService
+    final double subtotal = CartService().items.fold(0, (sum, item) => sum + (item.price * item.quantity));
+    final double deliveryFee = CartService().items.isEmpty ? 0.0 : 5.00; // Example fee
+    final double total = subtotal + deliveryFee;
+
     return Scaffold(
-      appBar: AppBar(title: const Text("Cart")),
-      body: Center(
-        child: ElevatedButton(
-          onPressed: _processToyyibPayPayment,
-          child: const Text("Pay Now"),
+      appBar: AppBar(
+        title: const Text('Your Cart'),
+        backgroundColor: primaryGreen,
+        foregroundColor: Colors.white,
+      ),
+      body: SingleChildScrollView(
+        padding: const EdgeInsets.all(16),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            // Header
+            Text(
+              'Your Cart',
+              style: TextStyle(
+                fontSize: 24,
+                fontWeight: FontWeight.bold,
+                color: Colors.green[800],
+              ),
+            ),
+            const SizedBox(height: 20),
+
+            // Cart Items Logic
+            if (CartService().items.isEmpty)
+              Container(
+                padding: const EdgeInsets.all(40),
+                width: double.infinity,
+                child: Column(
+                  children: [
+                    Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey[400]),
+                    const SizedBox(height: 16),
+                    Text('Your cart is empty', style: TextStyle(fontSize: 18, color: Colors.grey[600])),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Add some eco-friendly products to get started!',
+                      textAlign: TextAlign.center,
+                      style: TextStyle(fontSize: 14, color: Colors.grey[500]),
+                    ),
+                  ],
+                ),
+              )
+            else ...[
+              // List of Items
+              Column(
+                children: CartService().items.asMap().entries.map((entry) {
+                  final index = entry.key;
+                  final item = entry.value;
+
+                  return Container(
+                    margin: const EdgeInsets.only(bottom: 16),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(12),
+                      boxShadow: const [
+                        BoxShadow(color: Colors.black12, blurRadius: 4, offset: Offset(0, 2)),
+                      ],
+                    ),
+                    child: Row(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Container(
+                          width: 60,
+                          height: 60,
+                          decoration: BoxDecoration(
+                            color: Colors.grey[200],
+                            borderRadius: BorderRadius.circular(8),
+                          ),
+                          child: Icon(Icons.shopping_bag_outlined, color: Colors.grey[400]),
+                        ),
+                        const SizedBox(width: 16),
+                        Expanded(
+                          child: Column(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              Text(item.name, style: const TextStyle(fontSize: 16, fontWeight: FontWeight.bold)),
+                              Text(item.type, style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+                              const SizedBox(height: 8),
+                              Text(
+                                'RM${item.price.toStringAsFixed(2)}',
+                                style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: primaryGreen),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Column(
+                          children: [
+                            Container(
+                              decoration: BoxDecoration(
+                                color: Colors.grey[50],
+                                borderRadius: BorderRadius.circular(20),
+                                border: Border.all(color: Colors.grey[300]!),
+                              ),
+                              child: Row(
+                                children: [
+                                  IconButton(
+                                    icon: const Icon(Icons.remove, size: 18),
+                                    onPressed: () => _updateQuantity(index, item.quantity - 1),
+                                    constraints: const BoxConstraints(minWidth: 36),
+                                  ),
+                                  Text(item.quantity.toString(), style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  IconButton(
+                                    icon: const Icon(Icons.add, size: 18),
+                                    onPressed: () => _updateQuantity(index, item.quantity + 1),
+                                    constraints: const BoxConstraints(minWidth: 36),
+                                  ),
+                                ],
+                              ),
+                            ),
+                            TextButton(
+                              onPressed: () => _removeItem(index),
+                              child: const Text('Remove', style: TextStyle(color: Colors.red, fontSize: 12)),
+                            ),
+                          ],
+                        ),
+                      ],
+                    ),
+                  );
+                }).toList(),
+              ),
+
+              const Divider(height: 32),
+
+              // Pricing Summary
+              Container(
+                padding: const EdgeInsets.all(16),
+                decoration: BoxDecoration(
+                  color: Colors.grey[50],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Column(
+                  children: [
+                    _buildSummaryRow('Subtotal', 'RM${subtotal.toStringAsFixed(2)}', isBold: true),
+                    const SizedBox(height: 12),
+                    _buildSummaryRow('Delivery Fee', 'RM${deliveryFee.toStringAsFixed(2)}'),
+                    const SizedBox(height: 16),
+                    Container(
+                      padding: const EdgeInsets.all(12),
+                      decoration: BoxDecoration(
+                        color: primaryGreen.withOpacity(0.1),
+                        borderRadius: BorderRadius.circular(8),
+                      ),
+                      child: _buildSummaryRow('Total', 'RM${total.toStringAsFixed(2)}',
+                          isBold: true, color: primaryGreen, fontSize: 18),
+                    ),
+                    const SizedBox(height: 16),
+                    // Eco Message
+                    Row(
+                      children: [
+                        const Icon(Icons.eco, color: Colors.green, size: 20),
+                        const SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Thank you for choosing eco-friendly products! 😊',
+                            style: TextStyle(fontSize: 14, color: Colors.green[800]),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                ),
+              ),
+
+              const SizedBox(height: 24),
+
+              // Combined Payment Button
+              SizedBox(
+                width: double.infinity,
+                child: ElevatedButton(
+                  onPressed: _processToyyibPayPayment, // Integrated payment logic here
+                  style: ElevatedButton.styleFrom(
+                    backgroundColor: primaryGreen,
+                    foregroundColor: Colors.white,
+                    padding: const EdgeInsets.symmetric(vertical: 16),
+                    shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                  ),
+                  child: const Text(
+                    'Pay Now via ToyyibPay',
+                    style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+            ],
+          ],
         ),
       ),
+    );
+  }
+
+// Helper widget to keep code clean
+  Widget _buildSummaryRow(String label, String value, {bool isBold = false, Color? color, double fontSize = 16}) {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.spaceBetween,
+      children: [
+        Text(label, style: TextStyle(fontSize: fontSize, fontWeight: isBold ? FontWeight.bold : FontWeight.normal)),
+        Text(value, style: TextStyle(fontSize: fontSize, fontWeight: isBold ? FontWeight.bold : FontWeight.normal, color: color)),
+      ],
     );
   }
 }
